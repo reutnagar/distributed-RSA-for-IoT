@@ -1,4 +1,4 @@
-# Plan Phase One
+# Phase One Planning - Create ANetwork Of IoT Devices
 
 ## Assumptions& Arch Decisions
 - Each device has pre knowledge of the master required strengh.
