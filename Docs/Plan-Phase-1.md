@@ -20,45 +20,47 @@ Protocol as follows:
 
 ## Pseudo Code:
 
-Init():
-  
-  self_strengh = calc_strengh();
-  
-  IAmMaster = FALSE
-  
-  master_found = FALSE
+_Welcome to the distributed-RSA-for-IoT wiki!_
 
-run_prog():
+_Init():_
   
-  if(self_strengh < REQUIRED_STRENGH):
+  _self_strengh = calc_strengh();_
+  
+  _IAmMaster = FALSE_
+  
+  _master_found = FALSE_
+
+_run_prog():_
+  
+  _if(self_strengh < REQUIRED_STRENGH):_
       
-      message = listen()
+      _message = listen()_
       
-      proc_message(message)
-  else:
+      _proc_message(message)_
+  _else:_
     
-    while(!master_found || IAmMaster){
+    _while(!master_found || IAmMaster){_
       
-      message = listen(1_SECOND)
+      _message = listen(1_SECOND)_
       
-      proc_message(message)
+      _proc_message(message)_
       
-      if(master_found):
+      _if(master_found):_
         
-        master_ip = message.senderIP
+        _master_ip = message.senderIP_
         
-        node_comm_to_master()
+        _node_comm_to_master()_
         
-        break;
+        _break;_
       
-      else if(message.content == "OK") 
+      _else if(message.content == "OK") _
         
-        IAmMaster = TRUE
+        _IAmMaster = TRUE_
         
-        network_nodes_list.add(message.senderIP)
+        _network_nodes_list.add(message.senderIP)_
         
-        master_comm_to_node()
+        _master_comm_to_node()_
       
-      broadcast("I am master")
+      _broadcast("I am master")_
       
-      }// end while()
+      _}// end while()_
