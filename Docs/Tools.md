@@ -4,4 +4,4 @@
 Copy files from PC to Linkit Smart.
 
 ## PuTTY
-Comunicate with Linkit Smart, over SSH.
+Communicate with Linkit Smart, over SSH.
