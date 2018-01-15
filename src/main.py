@@ -25,7 +25,7 @@ def main():
     try:
         while(not IAmMaster):
             client = Client()
-            IAmMaster = client.run()
+            IAmMaster = client.run(4)
         master = Master()
         master.run()
     except KeyboardInterrupt:   # print all messages
