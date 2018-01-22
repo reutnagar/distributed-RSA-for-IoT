@@ -5,6 +5,7 @@
 - The first device (e.g. arduino) to declare itself master- wins.
 - The IP's of network members list is with the master.
 - Node is reset when entering a new network.
+- There will be a period on unsecured network, before master creates keys
 
 
 ## Initialization
