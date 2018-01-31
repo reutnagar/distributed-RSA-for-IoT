@@ -1,7 +1,7 @@
 import socket
 import logging
 import sys
-import network
+#import network
 import time
 from client import Client
 from master import Master
