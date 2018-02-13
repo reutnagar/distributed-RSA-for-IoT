@@ -2,12 +2,10 @@ import threading
 import time
 import socket
 import os
+from global_defs import *
+import internal_state
 
 
-STATE_MASTER = 0
-STATE_ERROR = -1
-STATE_TMP_CLIENT = 1
-STATE_CLIENT = 2
 
 if os.name != "nt":
     import fcntl
@@ -21,7 +19,7 @@ if os.name != "nt":
 class Client():
 	
 	def __init__(self):
-		self.state = STATE_CLIENT
+		self.data = None
 		self.strengh = 6	# self.calc_strengh()
 
 	def calc_strengh(self):
@@ -30,10 +28,10 @@ class Client():
 	def broadcast(self):
 		my_bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		my_bc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-		while self.state is not STATE_MASTER:
+		while self.data.state is not STATE_MASTER:
 			time.sleep(2)
-			my_bc_socket.sendto("I Am Master", ('<broadcast>' ,8881))
-			print("sent message: I Am Master")
+			my_bc_socket.sendto(MSG_I_MASTER, ('<broadcast>' ,8881))
+			print 'Sent broadcast message: %s' % MSG_I_MASTER
 		my_bc_socket.close()
 		return			
 
@@ -52,28 +50,60 @@ class Client():
 	        print "error"
 	    return ""
 
+	def send_message(self,msg,ip):
+		my_send_soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		my_send_soc.sendto(msg,(ip ,8881))
+		my_send_soc.close()
+		print 'Sent message: %s, to: %s' % (str(msg),ip)
+
 	def listen(self):
 		my_lsn_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		if os.name != "nt":	# for Arduino
-			my_ip = get_interface_ip("apcli0")
-		else: 				# for Windows PC
-			my_ip = socket.gethostbyname(socket.gethostname())
 		my_lsn_socket.bind(('',8881))
 		message , address = my_lsn_socket.recvfrom(1024)
-		if(my_ip != address[0]): # Each device gets its own msg, because it is broadcast
+		if(self.data.my_ip != address[0]): # Each device gets its own msg, because it is broadcast
 			print 'Got message: %s. from : %s' % ( str(message), address[0])
-		return str(message)
+		return str(message), address[0]
+	
+	def proc_MSG_I_MASTER(self, ip):
+		self.data.state = STATE_CLIENT
+		self.send_message(MSG_YOU_MASTER, ip)
+	
+	def proc_MSG_YOU_MASTER(self, ip):
+		if(self.data.state == STATE_CLIENT):
+			return
+		self.data.state = STATE_MASTER
+		self.data.neighbors.append(ip)  # add the ip of the node to internal list. will send to all clients later		pass
+		self.send_message(MSG_OK_I_MASTER, ip)
 
-	def process_message(self, msg):
-		pass
+	def proc_MSG_OK_I_MASTER(self, ip):
+		self.data.master_ip = ip
+		print 'Setting: %s as my Master...' % (str(ip))
 
-	def run(self,REQUIRED_STRENGH):		
+	def proc_MSG_UNDEFINED(self, ip):
+		print 'Undefined message frpm: %s. Ignore...' % (str(ip))
+
+	def process_message(self, msg, ip):
+		if(ip == self.data.my_ip):
+			return
+		return {
+	        MSG_I_MASTER: self.proc_MSG_I_MASTER(ip),
+	        MSG_YOU_MASTER: self.proc_MSG_YOU_MASTER(ip),
+	        MSG_OK_I_MASTER: self.proc_MSG_OK_I_MASTER(ip),
+    	}.get(msg, self.proc_MSG_UNDEFINED(ip))
+
+	def run(self,REQUIRED_STRENGH, my_state):
+		self.data = my_state
+		self.data.state = STATE_CLIENT
+		if os.name != "nt":	# for Arduino
+			self.data.my_ip = get_interface_ip("apcli0")
+		else: 				# for Windows PC
+			self.data.my_ip = socket.gethostbyname(socket.gethostname())	
 		if(self.strengh > REQUIRED_STRENGH):
-			self.state = STATE_TMP_CLIENT
+			self.data.state = STATE_TMP_CLIENT
 			self.async_action(self.broadcast)
-		while((self.state is not STATE_MASTER) and (self.state is not STATE_ERROR)):
-			msg = self.listen()
-			self.process_message(msg)
-		if(self.state == STATE_MASTER):
-			return True
-		return False
+		while((self.data.state is not STATE_MASTER) and (self.data.state is not STATE_ERROR)):
+			msg, ip = self.listen()
+			self.process_message(msg, ip)
+		if(self.data.state == STATE_MASTER):
+			return self.data
+		return self.data

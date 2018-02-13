@@ -3,11 +3,12 @@ import logging
 import sys
 #import network
 import time
+from global_defs import *
+from internal_state import InternalState
 from client import Client
 from master import Master
 
 logger = 0
-IAmMaster = False
 
 def init_log():
     FORMAT = '%(asctime)-15s: %(message)s'
@@ -17,15 +18,15 @@ def init():
     init_log()
 
 def main():
-    global IAmMaster
+    my_state = InternalState()
     init()
 
     logging.info('start service ...')
 
     try:
-        while(not IAmMaster):
+        while(my_state.state is not STATE_MASTER):
             client = Client()
-            IAmMaster = client.run(4)
+            my_state = client.run(4, my_state)
         master = Master()
         master.run()
     except KeyboardInterrupt:   # print all messages

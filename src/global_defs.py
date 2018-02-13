@@ -1,0 +1,13 @@
+
+# States
+
+STATE_INIT = 0
+STATE_MASTER = 1
+STATE_ERROR = -1
+STATE_TMP_CLIENT = 2
+STATE_CLIENT = 3
+
+# Messages
+MSG_I_MASTER = "I Am Master"
+MSG_YOU_MASTER = "OK, You Are Master"
+MSG_OK_I_MASTER = "OK, I Am Master"
