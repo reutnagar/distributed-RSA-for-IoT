@@ -28,9 +28,8 @@ def main():
             client = Client()
             my_state = client.run(4, my_state)
         master = Master()
-        master.run()
-    except KeyboardInterrupt:   # print all messages
-        # print 'buffer: %s' %(str(client.buffer))
+        master.run(my_state)
+    except KeyboardInterrupt:
         sys.exit()
 
 if __name__ == "__main__" :

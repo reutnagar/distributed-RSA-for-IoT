@@ -20,13 +20,12 @@ class Client():
 	
 	def __init__(self):
 		self.data = None
-		self.strengh = 10	# self.calc_strengh()
 		self.sending_ip = ''
 		self.sending_msg = ''
 		self.msg_dict = {MSG_I_MASTER: self.proc_MSG_I_MASTER, MSG_YOU_MASTER: self.proc_MSG_YOU_MASTER, MSG_OK_I_MASTER: self.proc_MSG_OK_I_MASTER,}
     	
 	def calc_strengh(self):
-		pass
+		return 10  # missing impl. for now
 
 	def broadcast(self):
 		my_bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -69,26 +68,26 @@ class Client():
 		if(self.data.my_ip != address[0]): # Each device gets its own msg, because it is broadcast
 			print 'Got message: %s. from : %s' % ( str(message), address[0])
 		return str(message), address[0]
-	
+		
 	def proc_MSG_I_MASTER(self):
 		ip = self.sending_ip
-		print 'in proc_MSG_I_MASTER'
-		self.data.state = STATE_CLIENT
-		self.data.master_ip = ip		
-		self.send_message(MSG_YOU_MASTER, ip)
-	
+        if(self.data.master_ip != ""): # already has a master
+            return
+        print 'in proc_MSG_I_MASTER'
+        self.data.state = STATE_CLIENT
+        self.data.master_ip = ip
+        self.send_message(MSG_YOU_MASTER, ip)
+		
 	def proc_MSG_YOU_MASTER(self):
 		ip = self.sending_ip
 		print 'in proc_MSG_YOU_MASTER'
-		if(self.data.state != STATE_TMP_CLIENT or self.data.master_ip != ""):
+        if((self.data.state != STATE_TMP_CLIENT) or (self.data.master_ip != "")):
 			return
-		print 'in proc_MSG_YOU_MASTER'
-		self.data.state = STATE_MASTER # will couse exit the Client instance and create a Master in main
-		self.data.neighbors.append(ip)  # add the ip of the node to internal list. will send to all clients later		pass
+		self.data.neighbors.append(ip)
 		self.send_message(MSG_OK_I_MASTER, ip)
-
+		
 	def proc_MSG_OK_I_MASTER(self):
-		ip = self.sending_ip
+        ip = self.sending_ip
 		print 'in proc_MSG_OK_I_MASTER'
 		if(self.data.master_ip != ip):
 			print 'Error! got MSG_OK_I_MASTER from new ip!'
@@ -96,12 +95,12 @@ class Client():
 		#self.data.master_ip = ip
 		print 'Setting: %s as my Master...' % (str(ip))
 
-	def proc_MSG_UNDEFINED(self):
+    def proc_MSG_UNDEFINED(self):
 		ip = self.sending_ip
 		msg = self.sending_msg
 		print 'Undefined message: %s. from: %s. Ignore...' % (msg, str(ip))
 
-	def process_message(self, msg, ip):
+    def process_message(self, msg, ip):
 		if(ip == self.data.my_ip):
 			return
 		self.sending_ip = ip
@@ -114,12 +113,13 @@ class Client():
 		# init internal data
 		self.data = my_state
 		self.data.state = STATE_CLIENT
+		self.data.strengh = self.calc_strengh()
 		if os.name != "nt":	# for Arduino
 			self.data.my_ip = get_interface_ip("apcli0")
 		else: 				# for Windows PC
 			self.data.my_ip = socket.gethostbyname(socket.gethostname())
-		# broadcast if needed	
-		if(self.strengh > REQUIRED_STRENGH):
+		# broadcast if needed
+		if(self.data.strengh > REQUIRED_STRENGH):
 			self.data.state = STATE_TMP_CLIENT
 			self.async_action(self.broadcast)
 		# listen & process messages
