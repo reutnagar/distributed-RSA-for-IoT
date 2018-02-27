@@ -55,7 +55,7 @@ class Client():
             print "error"
         return ""
 
-    def send_message(self,msg,ip): # only for master
+    def send_message(self,msg,ip): 
         my_send_soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         my_send_soc.sendto(msg,(ip ,8881))
         my_send_soc.close()
@@ -66,7 +66,8 @@ class Client():
         my_lsn_socket.bind(('',8881))
         message , address = my_lsn_socket.recvfrom(1024)
         if(self.data.my_ip != address[0]): # Each device gets its own msg, because it is broadcast
-            print 'Got message: %s. from : %s' % ( str(message), address[0])  # only for clients
+            if((self.data.state != STATE_CLIENT) or (str(message) != str(MSG_I_MASTER))):
+                print 'Got message: %s. from : %s' % ( str(message), address[0])
         return str(message), address[0]
         
     def proc_MSG_I_MASTER(self):
@@ -102,7 +103,11 @@ class Client():
 
     def process_message(self, msg, ip): 
         if(ip == self.data.my_ip):
-            self.data.state = STATE_MASTER
+            #self.data.state = STATE_MASTER
+            return
+        # if((self.sending_ip == ip) and (self.sending_msg == msg) or ((self.data.state == STATE_CLIENT) and (msg == MSG_I_MASTER)):
+        #     return
+        if((self.data.state == STATE_CLIENT) and (msg == MSG_I_MASTER)):
             return
         self.sending_ip = ip
         self.sending_msg = msg
