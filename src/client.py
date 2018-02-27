@@ -55,18 +55,18 @@ class Client():
             print "error"
         return ""
 
-    def send_message(self,msg,ip):
+    def send_message(self,msg,ip): # only for master
         my_send_soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         my_send_soc.sendto(msg,(ip ,8881))
         my_send_soc.close()
         print 'Sent message: %s, to: %s' % (str(msg),ip)
 
-    def listen(self):
+    def listen(self): 
         my_lsn_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         my_lsn_socket.bind(('',8881))
         message , address = my_lsn_socket.recvfrom(1024)
         if(self.data.my_ip != address[0]): # Each device gets its own msg, because it is broadcast
-            print 'Got message: %s. from : %s' % ( str(message), address[0])
+            print 'Got message: %s. from : %s' % ( str(message), address[0])  # only for clients
         return str(message), address[0]
         
     def proc_MSG_I_MASTER(self):
@@ -100,8 +100,9 @@ class Client():
         msg = self.sending_msg
         print 'Undefined message: %s. from: %s. Ignore...' % (msg, str(ip))
 
-    def process_message(self, msg, ip):
+    def process_message(self, msg, ip): 
         if(ip == self.data.my_ip):
+            self.data.state = STATE_MASTER
             return
         self.sending_ip = ip
         self.sending_msg = msg
