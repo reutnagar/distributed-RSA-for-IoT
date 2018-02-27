@@ -40,7 +40,7 @@ class Master():
 
     def listen(self, sock):
         message , address = sock.recvfrom(1024)
-        if(self.data.my_ip == address[0]): # Each device gets its own msg, because it is broadcast
+        if(self.data.my_ip != address[0]): # Each device gets its own msg, because it is broadcast
 			print 'Got message: %s. from : %s' % ( str(message), address[0])
         return str(message), address[0]
 
