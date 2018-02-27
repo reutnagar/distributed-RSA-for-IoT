@@ -31,7 +31,7 @@ class Client():
         my_bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         my_bc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         while(True):
-            time.sleep(2)
+            time.sleep(5)
             if(self.data.state != STATE_TMP_CLIENT):
                 my_bc_socket.close()
                 return
@@ -65,6 +65,7 @@ class Client():
         my_lsn_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         my_lsn_socket.bind(('',8881))
         message , address = my_lsn_socket.recvfrom(1024)
+        print 'msg: %s , add: %s' % (str(message),address[0])
         if(self.data.my_ip != address[0]): # Each device gets its own msg, because it is broadcast
             if((self.data.state != STATE_CLIENT) or (str(message) != str(MSG_I_MASTER))):
                 print 'Got message: %s. from : %s' % ( str(message), address[0])
@@ -104,7 +105,6 @@ class Client():
 
     def process_message(self, msg, ip): 
         if(ip == self.data.my_ip):
-            #self.data.state = STATE_MASTER
             return
         # if((self.sending_ip == ip) and (self.sending_msg == msg) or ((self.data.state == STATE_CLIENT) and (msg == MSG_I_MASTER)):
         #     return
