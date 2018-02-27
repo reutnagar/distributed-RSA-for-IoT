@@ -85,6 +85,7 @@ class Client():
         if((self.data.state != STATE_TMP_CLIENT) or (self.data.master_ip != "")):
             return
         self.data.neighbors.append(ip)
+        self.data.state = STATE_MASTER # will couse exit the Client instance and create a Master in main
         self.send_message(MSG_OK_I_MASTER, ip)
         
     def proc_MSG_OK_I_MASTER(self):
