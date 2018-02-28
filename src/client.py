@@ -74,14 +74,14 @@ class Client():
         ip = self.sending_ip
         if(self.data.master_ip != ""): # already has a master
             return
-        print 'in proc_MSG_I_MASTER'
+        #print 'in proc_MSG_I_MASTER'
         self.data.state = STATE_CLIENT
         self.data.master_ip = ip
         self.send_message(MSG_YOU_MASTER, ip)
         
     def proc_MSG_YOU_MASTER(self):
         ip = self.sending_ip
-        print 'in proc_MSG_YOU_MASTER'
+        #print 'in proc_MSG_YOU_MASTER'
         if((self.data.state != STATE_TMP_CLIENT) or (self.data.master_ip != "")):
             return
         self.data.master_ip = self.data.my_ip
@@ -91,7 +91,7 @@ class Client():
         
     def proc_MSG_OK_I_MASTER(self):
         ip = self.sending_ip
-        print 'in proc_MSG_OK_I_MASTER'
+        #print 'in proc_MSG_OK_I_MASTER'
         if(self.data.master_ip != ip):
             print 'Error! got MSG_OK_I_MASTER from new ip!'
             self.data.state = STATE_ERROR  # this will re-create the device as client
@@ -112,7 +112,7 @@ class Client():
             return
         self.sending_ip = ip
         self.sending_msg = msg
-        print 'in process_message. msg: %s' % msg
+        #print 'in process_message. msg: %s' % msg
         return self.msg_dict.get(msg, self.proc_MSG_UNDEFINED)()
 
     def run(self,REQUIRED_STRENGH, my_state):
