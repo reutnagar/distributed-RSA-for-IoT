@@ -13,5 +13,6 @@ class State(object):
 	poolSize = 0 // the size of the keys pool to be generated
 	subKeysSize = 0 // the size of the sub key-pool to be sent to each node
 	keys = [] // the key pool
+	toSendKeys = [] // list of IPs that the Master will send key to after generation of the key is done
 	
 ```
