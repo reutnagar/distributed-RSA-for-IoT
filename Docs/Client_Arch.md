@@ -10,13 +10,12 @@ calculateStrengh():
 	memory, storage, transmition_rate, cpu
 	return (memory >= MIN_MEMORY && storage >= MIN_STORAGE && transmition_rate >= MIN_TRANS && cpu >= MIN_CPU)
 ```
-## Finding Th Master in The Network
-// A node will have 3 states:
-// 1. It can not be a Master (canIBeMaster = False): will stuck in this loop untill the Master will respond. 
-//			return False
-// 2. There is another Master on the network: it will probably get response from the Master 
-//			within the timeout in 2 tries. return False
-// 3. if non of the above: will set myself as master of the network. return True
+## Finding The Master in The Network
+A node will have 3 states:
+1. It can not be a Master (canIBeMaster = False): will stuck in this loop untill the Master will respond. 
+			return False
+2. There is another Master on the network: it will probably get response from the Master within the timeout in 2 tries. return False
+3. if non of the above: will set myself as master of the network. return True
 ```
 findMaster(state):
 	counter = 2
