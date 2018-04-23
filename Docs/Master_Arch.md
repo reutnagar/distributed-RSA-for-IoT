@@ -4,7 +4,9 @@
 return the size of the keys-pool.(P)
 
 We will find P by this equation:
-[P eq](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/p_eq.png)
+
+![P_eq](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/p_eq.png)
+
 when:
 - p' = d/(n'-1)
 - d = p*(n-1)
