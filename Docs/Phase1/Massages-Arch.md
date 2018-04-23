@@ -14,6 +14,7 @@ There are two ways:
 1. Extract the size of the message from the first block.
 2. Recieve the blocks of the massage, depending on the size of the message.
 
+more about implementation [here](https://stackoverflow.com/questions/27428936/python-size-of-message-to-send-via-socket) and some explanation [here](http://stupidpythonideas.blogspot.co.il/2013/05/sockets-are-byte-streams-not-message.html).
 ## The header size is not known:
 
 ### In sending massages:
