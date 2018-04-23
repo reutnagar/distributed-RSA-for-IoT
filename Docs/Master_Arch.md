@@ -1,5 +1,21 @@
 # Master Architecture
 
+## calculatePoolSize(state):
+return the size of the keys-pool.(P)
+
+We will find P by this equation:
+[P eq](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/p_eq.png)
+when:
+- p' = d/(n'-1)
+- d = p*(n-1)
+- p = ln(n)/n - c/n , when c is real 
+- k = M/8
+
+## calculateSubKeysSize(state):
+return the size of the subset keys.(k)
+
+k = M/8
+
 ## Generation of The Key Pool
 arguments: poolSize- the size of the pool to be generated.
 returns the pool of random keys
