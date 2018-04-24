@@ -78,7 +78,7 @@ class Master():
     def run(self, my_state):
     	print 'Master.run() is started...'
         print 'Wait for 5 minutes until network is set up...'
-    	# init internal data
+        # init internal data
     	self.data = my_state
     	self.data.state = STATE_MASTER
     	self.data.net_state = NET_STATE_INIT
