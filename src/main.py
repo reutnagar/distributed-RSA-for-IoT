@@ -10,7 +10,7 @@ state = State()
 
 # listen to every message from the network, and process it. will modify "state" if needed
 #messages.async_listenToMessages(state)
-messages.async_listenToMessages()
+messages.async_listenToMessages(state)
 
 state.status = NODE_INIT
 
