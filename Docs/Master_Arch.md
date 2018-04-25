@@ -29,3 +29,12 @@ generateKeyPool(poolSize):
     keyPool.append(key)  // add the key to the pool. the key index is its index on this list
   return keyPool    
 ```
+
+## Distibution of the key
+Send a random subset of keys to each client
+```
+sendKeys(state):
+  for client in state.toSendKeys:
+    index = random(state.poolSize)
+    messages.send(state.keyPool[i])
+```
