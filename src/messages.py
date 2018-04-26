@@ -101,15 +101,6 @@ def client(port):
 
 def process_message(message, ip):
 	if message == 'IS_THERE_MASTER' and state.status == 'MASTER_INIT or MASTER_DONE':
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	    s.bind((host, port))
-	    #s.listen(1)
-	    c, addr = s.accept()
-	    send_msg(c, 'hello')
-	    send_msg(c, 'there')
-	    c.close()
-	    s.close()
 		print 'send message I_AM_MASTER to ip'
 	else:
 		if message == 'I_AM_MASTER' and state.status == 'NODE_INIT':
