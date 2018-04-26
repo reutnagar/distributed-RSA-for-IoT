@@ -1,5 +1,6 @@
 
 # Communication Arch
+About messages structure see [here](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/Massages_Structure_Arch.md)
 ## Listening to messages
 will be done on a different thread to allow parallel execution of commands, and better response time for messages on the network.
 ```
