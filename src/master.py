@@ -1,6 +1,8 @@
 from state import *
+from global_data import state
 #from math import *
 import random, math, string
+
 
 # memory size
 M = 512

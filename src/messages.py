@@ -3,9 +3,14 @@ import threading
 import socket
 import time
 import os
+from state import *
+from global_data import state
 
+IS_THERE_MASTER = "IS_THERE_MASTER"
+I_AM_MASTER = "I_AM_MASTER"
 PORT = 8881
-stateInt = None
+
+#stateInt = None
 
 if os.name != "nt":
     import fcntl
@@ -26,11 +31,9 @@ print("My IP is: " + my_ip)
 #############################
 #### Async thread  ##########
 #############################
-def async_listenToMessages(state):
-	global stateInt
+def async_listenToMessages(stateInt):
 	print("Creating New thread..")
-	stateInt = state
-	c = threading.Thread(target=asyncListen)  #, args=(9999,)
+	c = threading.Thread(target=async_listen)
 	c.daemon = True
 	c.start()
 
@@ -41,20 +44,23 @@ def listen(socket):
 	return str(message), address[0]
 
 
-def asyncListen():
+def async_listen():
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s.bind(('',PORT))
 	while(True):  # may stop the thread on some condition...
 		msg, ip = listen(s)  # block until message accepted
-		process_message(message, ip)
+		process_message(msg, ip)
 
 def process_message(message, ip):
-	if message == 'IS_THERE_MASTER' and state.status == 'MASTER_INIT or MASTER_DONE':
-		print 'send message I_AM_MASTER to ip'
+	print("in process_message. state.status = " +str(state.status))
+	if message == 'IS_THERE_MASTER' and (state.status == MASTER_INIT or state.status == MASTER_DONE):
+		send_single_msg(I_AM_MASTER, ip)
+		print("Sent message I_AM_MASTER to IP: "+ str(ip))
 	else:
-		if message == 'I_AM_MASTER' and state.status == 'NODE_INIT':
-			state.status == 'MASTER_FOUND'
+		if message == 'I_AM_MASTER' and state.status == NODE_INIT:
+			state.status = MASTER_FOUND
 			state.masterIP = ip
+			print("in process_message I_AM_MASTER. Master is found!!")
 		else: 
 			if message == 'I_AM_ON_THE_NETWORK' and ip not in status.neighbors:
 				status.neighbors.append(ip)
@@ -98,20 +104,17 @@ def send_msg(s, data):
     print '2'+data
 
 def broadcast(message): #send broadcast message
+	print("Broadcast massage: "+ message)
 	my_bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	my_bc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)		
-	my_bc_socket.sendto(message, ('<broadcast>' ,8881))
-	print 'Sent broadcast message: %s' % message
+	my_bc_socket.sendto(message, ('<broadcast>' ,PORT))
 	my_bc_socket.close()
 	return
 
 def send_single_msg(message,ip):
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	s.bind((host, port))
-	c, addr = s.accept()
-	send_msg(c, message)
-	c.close()
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+   	s.connect((ip, PORT))
+	send_msg(s, message)
 	s.close()
 	
 	
