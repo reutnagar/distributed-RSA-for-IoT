@@ -104,7 +104,7 @@ def process_message(message, ip):
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	    s.bind((host, port))
-	    s.listen(1)
+	    #s.listen(1)
 	    c, addr = s.accept()
 	    send_msg(c, 'hello')
 	    send_msg(c, 'there')
@@ -134,16 +134,6 @@ def server(port):
 		msg, ip = listen()  // block untill message accepted
 		process_message(message, ip)
 
-		send_msg(msg, ip):
-	s = socket.open()
-	header = struct.pack('>i', len(data))
-	_send_block(s, header)
-	_send_block(s, data)
-
-
-    
-
-
 
 def broadcast(message): #send broadcast message
 	my_bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -152,3 +142,12 @@ def broadcast(message): #send broadcast message
 	print 'Sent broadcast message: %s' % message
 	my_bc_socket.close()
 	return
+
+def send_single_msg(message,ip):
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+   	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	s.bind((host, port))
+	c, addr = s.accept()
+    send_msg(c, message)
+    c.close()
+    s.close()
