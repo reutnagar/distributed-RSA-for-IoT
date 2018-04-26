@@ -1,8 +1,9 @@
-# def async_listenToMessages(state):
-# 	print("Creating New thread..")
+
+stateInt
 
 def async_listenToMessages(state):
 	print("Creating New thread..")
+	stateInt = state
 	c = threading.Thread(target=server, args=(9999,))
 	c.start()
 	time.sleep(1)
@@ -98,13 +99,56 @@ def client(port):
     s.shutdown(socket.SHUT_RDWR)
     s.close()
 
+def process_message(message, ip):
+	if message == 'IS_THERE_MASTER' and state.status == 'MASTER_INIT or MASTER_DONE':
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	    s.bind((host, port))
+	    s.listen(1)
+	    c, addr = s.accept()
+	    send_msg(c, 'hello')
+	    send_msg(c, 'there')
+	    c.close()
+	    s.close()
+		print 'send message I_AM_MASTER to ip'
+	else:
+		if message == 'I_AM_MASTER' and state.status == 'NODE_INIT':
+			state.status == 'MASTER_FOUND'
+			state.masterIP = ip
+		else: 
+			if message == 'I_AM_ON_THE_NETWORK' and ip not in status.neighbors:
+				status.neighbors.append(ip)
+			else:
+				if message == 'CLIENT_SUBSET_KEYS' and state.status == 'CLIENT_INIT':
+					print 'recieve the list of the keys'
+
+# def listen(self, socket):
+#     message , address = socket.recvfrom(1024)
+#     if(self.data.my_ip != address[0]): # Each device gets its own msg, because it is broadcast
+# 		print 'Got message: %s. from : %s' % ( str(message), address[0])
+#     return str(message), address[0]
+
+
 def server(port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((host, port))
-    s.listen(1)
-    c, addr = s.accept()
-    send_msg(c, 'hello')
-    send_msg(c, 'there')
-    c.close()
-    s.close()
+	while(True):  // may stop the thread on some codition...
+		msg, ip = listen()  // block untill message accepted
+		process_message(message, ip)
+
+		send_msg(msg, ip):
+	s = socket.open()
+	header = struct.pack('>i', len(data))
+	_send_block(s, header)
+	_send_block(s, data)
+
+
+    
+
+
+
+def broadcast(message): #send broadcast message
+	my_bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	my_bc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)		
+	my_bc_socket.sendto(message, ('<broadcast>' ,8881))
+	print 'Sent broadcast message: %s' % message
+	my_bc_socket.close()
+	return
