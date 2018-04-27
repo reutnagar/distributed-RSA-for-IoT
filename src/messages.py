@@ -116,7 +116,32 @@ def send_single_msg(message,ip):
    	s.connect((ip, PORT))
 	send_msg(s, message)
 	s.close()
-	
+
+
+# global openedSocket
+# global openedSocketSize
+
+# def send_header(size,ip):
+# 	s = socket.open()
+# 	header = struct.pack('>i', size)
+# 	_send_block(s, header)
+# 	openedSocket = s
+# 	openedSocketSize = size
+
+# def send_data(data,ip):
+# 	_send_block(openedSocket, data)
+# 	openedSocketSize -= len(data)
+# 	if(openedSocketSize <= 0):
+# 		openedSocket.close()
+
+
+# def send_multiple_msg(size,data,ip):
+# 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# 	s.connect(('', PORT))
+# 	send_header(size,ip)
+# 	send_data(s, data)
+# 	print(header)
+# 	print(data)
 	
 	
 	
