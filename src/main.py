@@ -1,32 +1,32 @@
 from state import *
-from global_data import state
+from global_data import *
 import messages, master, client
 
 print("**Node startup**")
 
-# init()
+#init()
 
 # listen to every message from the network, and process it. will modify "state" if needed
-#messages.async_listenToMessages(state)
-messages.async_listenToMessages(state)
+messages.async_listen_to_messages()
 
 state.status = NODE_INIT
 
 # ask "who is Master" in the network. return True if I am the Master, False otherwise
-state.IAmMaster = client.findMaster(state)
+state.IAmMaster = client.find_master()
 print("in main. Master is found!")
 
 if(state.IAmMaster): # perform Master logic
 	state.status = MASTER_INIT
-	while(state.status == MASTER_INIT):
-		pass
+	
 	# Master calculations
-	state.poolSize = master.calculatePoolSize(state)
-	state.subKeysSize = master.calculateSubKeysSize(state)
+	state.poolSize = master.calculate_pool_size()
+	state.subKeysSize = master.calculate_sub_keys_size()
 	# generate the keys
-	state.keys = master.generateKeyPool(state)
+	state.keys = master.generate_key_pool()
 	# send the sub-pool keys
-	master.sendKeys(state)
+	master.send_keys()
+	while(True):
+		pass
 	state.status = MASTER_DONE	
 else: # client logic
 	state.status = CLIENT_INIT

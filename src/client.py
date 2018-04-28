@@ -3,7 +3,7 @@ from global_data import state
 import messages
 import time
 
-def findMaster(state):
+def find_master():
 	print("Looking for the Master on the network...")
 	counter = 2
 	canIBeMaster = True # calculateStrengh()

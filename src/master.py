@@ -1,7 +1,8 @@
 from state import *
 from global_data import state
 #from math import *
-import random, math, string
+import random, math, string, time
+import messages
 
 
 # memory size
@@ -23,14 +24,15 @@ gP = -k**2/math.log(1-pp)
 # P = int(fsolve(func, gP)[0]) 
 KEY_SIZE = 20
 
-def calculatePoolSize(state):
+def calculate_pool_size():
 	print("Master: Calculating  the pool size...")
+	return 100 # only for DEBUG!!
 	
-def calculateSubKeysSize(state):
+def calculate_sub_keys_size():
 	print("Master: Calculating  the subset size = " + str(k))
 	return k
 	
-def generateKeyPool(state):
+def generate_key_pool():
 	print("Master: Generating the key pool")
 	keyPool = []  # list of keys
 	poolSize = 100 # for DEBUG!!
@@ -41,5 +43,17 @@ def generateKeyPool(state):
 	print("Generated pool of size: "+ str(len(keyPool)))
 	return keyPool
 	
-def sendKeys(state):
+def send_keys():
+#	while(len(state.toSendKeys) == 0):
+#		pass
+#	time.sleep(20)
 	print("Sending the keys to the Clients...")
+#	for addrs in state.toSendKeys:
+#		print("Sending to: "+ str(addrs))
+#		messages.send_single_msg(messages.CLIENT_KEYS, addrs)
+#		messages.send_header(2*KEY_SIZE, addrs)
+#		for i in xrange(2):
+#			key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
+#			print(str(i)+ ": "+ key)
+#			messages.send_data(key, addrs)
+	
