@@ -71,8 +71,8 @@ def process_message(message, ip):
 		else:
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 	elif message == 'I_AM_ON_THE_NETWORK': 
-		if ip not in status.neighbors:
-			status.neighbors.append(ip)
+		if ip not in state.neighbors:
+			state.neighbors.append(ip)
 	elif message == 'CLIENT_SUBSET_KEYS':
 		if state.status == 'CLIENT_INIT':
 			print 'recieve the list of the keys'
