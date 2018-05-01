@@ -5,7 +5,7 @@ Other modules are: master, client, messages, state.
 ## Initialization
 On reset a node will initialize it internal state and variable.
 Then will listen to every message on the network, asynchronous. This is done to make sure the node does not miss any message about a master exist on the network, or to prevent timing issues that can occure.
-At this phase its status is INIT. see explanation [here](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/State_Arch.md).
+At this phase its status is INIT. see more about states [here](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/State_Arch.md). More about communication see [here](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/Communication_Arch.md)
 ```
 init()
 
