@@ -5,32 +5,51 @@ from math import log
 import random, math, string, time
 import messages
 
-KEY_SIZE = 20
+KEY_SIZE = 8
 # memory size
 M = 512
+
 # The number of network&#39;s nodes
-n = 100
-# the probability where it is certainly true that two nodes have a connectivity
-Pc = 0.9
+n = 10000
+
+def nodesInNetwork():
+	return n
 
 def calculate_sub_keys_size():
 	print("Master: Calculating  the subset size = " + str(M/8))
-	return M/8
+	return 15 #M/8
 	
 # size of sub keys 
 k = calculate_sub_keys_size()
 
 # n' neighborhood size
-nn = 30
-c = 50 # ?? real constant
-p = math.log(n, math.e)/n - c/n
+nn = 40
+
+# # the probability where it is certainly true that two nodes have a connectivity
+# Pc = 0.999
+
+# def calculateC(Pc):
+	# a = math.log(Pc,math.e)
+	# b = -math.log(a,math.e)
+	# return b
+
+# c = calculateC(Pc)
+
+c = 11.5
+def a():
+	Pc = math.e**(math.e**-c)
+	return Pc
+	
+p = math.log(n, math.e)/n + c/n
 d = p * (n - 1)
-pp = d / (nn - 1) # p'
+def calcPp():
+	return d / (nn - 1) # p'
+pp = calcPp()
 gP = -k**2/math.log(1-pp)
 
 # function to calculate p'
 def func(P):
-    return log(1-pp)-(2*P-2*k+1)*log(1-k/P)+(2*P-4*k+1)*log(1-2*k/P) 
+    return log(1-pp)-(2*P-2*k+1)*log(1-k/P)+(P-2*k+1/2)*log(1-2*k/P) 
 	
 def calculate_pool_size():
 	print("Master: Calculating  the pool size...")
