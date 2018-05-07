@@ -10,20 +10,20 @@ KEY_SIZE = 16
 M = 512
 
 # The number of network&#39;s nodes
-n = 500
+n = 10000
 
 def nodesInNetwork():
 	return n
 
 def calculate_sub_keys_size():
-	print("Master: Calculating  the subset size = " + str(M/8))
-	return 20 #15 #M/8
+	print("Master: Calculating  the subset size = " + str(M/KEY_SIZE))
+	return 30 #15 #M/8
 	
 # size of sub keys 
 k = calculate_sub_keys_size()
 
-# n' neighborhood size
-nn = 20
+# n', neighborhood size
+nn = 25
 
 # # the probability where it is certainly true that two nodes have a connectivity
 # Pc = 0.999
@@ -36,16 +36,18 @@ nn = 20
 # c = calculateC(Pc)
 
 c = 11.5
+
 def a():
 	Pc = math.e**(math.e**-c)
 	return Pc
 	
 p = math.log(n, math.e)/n + c/n
+
 d = p * (n - 1)
-def calcPp():
-	return d / (nn - 1) # p'
-pp = calcPp()
-gP = -k**2/math.log(1-pp)
+
+pp = d / (nn - 1) # p'
+
+gP = -k**2/math.log(1-pp) #x0
 
 # function to calculate p'
 def func(P):
@@ -58,6 +60,21 @@ def calculate_pool_size():
 	
 # the size of the pool
 P = calculate_pool_size()
+
+def get_pp():
+	return pp
+	
+def get_P():
+	return P
+
+def get_nn():
+	return nn
+
+def get_n():
+	return n
+	
+def get_k():
+	return k
 	
 def generate_key_pool():
 	print("Master: Generating the key pool")

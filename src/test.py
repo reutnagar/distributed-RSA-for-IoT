@@ -1,9 +1,9 @@
 import master, math , random
 
-k = master.calculate_sub_keys_size()
+k = master.get_k()
 print 'from test: k = ' + str(k)
 
-P = master.calculate_pool_size()
+P = master.get_P()
 print 'from test: P = ' + str(P)
 
 key_pool = []
@@ -12,24 +12,26 @@ key_pool = master.generate_key_pool()
 
 #print master.calculateC(0.7)
 print ('pc: ',master.a())
-print ('pp: ',master.calcPp())
+print ('pp: ',master.get_pp())
 
 num = master.nodesInNetwork() # num of neigbors
 Matrix = [[0 for x in range(k)] for y in range(num)]
 for i in xrange(num):
     Matrix[i] = master.generate_sub_keys(key_pool, k).keys()
-    #print Matrix[i]
+    #print 'i:' + str(i)+':'+ str(Matrix[i])
 
 count=0	
 a=0
+nn = master.get_nn()
 
 randNodes=[]
-for m in xrange(20):
-	id = int(math.floor(random.random() * num))
-	randNodes.append(Matrix[id])
-for i in xrange(20):
-	for j in range(i+1,20):
-		#print 'i:'+str(i)+',j:'+str(j)+str(set(Matrix[i]).intersection(Matrix[j]))
+for m in xrange(nn):
+	id = int(math.floor(random.random() * len(key_pool)))
+	randNodes.append(id)
+print randNodes
+for i in xrange(nn):
+	for j in range(i+1,nn):
+		#print 'i:'+str(randNodes[i])+',j:'+str(randNodes[j])+str(set(Matrix[randNodes[i]]).intersection(Matrix[randNodes[j]]))
 		a+=1
 		if set(Matrix[i]).intersection(Matrix[j]):
 			count+=1
