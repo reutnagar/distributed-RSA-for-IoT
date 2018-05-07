@@ -5,25 +5,25 @@ from math import log
 import random, math, string, time
 import messages
 
-KEY_SIZE = 8
+KEY_SIZE = 16
 # memory size
 M = 512
 
 # The number of network&#39;s nodes
-n = 10000
+n = 500
 
 def nodesInNetwork():
 	return n
 
 def calculate_sub_keys_size():
 	print("Master: Calculating  the subset size = " + str(M/8))
-	return 15 #M/8
+	return 20 #15 #M/8
 	
 # size of sub keys 
 k = calculate_sub_keys_size()
 
 # n' neighborhood size
-nn = 40
+nn = 20
 
 # # the probability where it is certainly true that two nodes have a connectivity
 # Pc = 0.999
