@@ -24,7 +24,7 @@ The actions/ behavior that will be taken when the following messages are got:
 - <b>CLIENT_PUBLIC_KEY</b>: if status is MASTER_INIT add the ip and the key to state.toSendKeys, if status is MASTER_DONE send a key ring to ip encrypted with the key. otherwise do nothing.
 - <b>I_AM_ON_THE_NETWORK</b>: if the ip is not in neigbors list, add it.
 - <b>CLIENT_RING_KEYS</b>: if status is CLIENT_INIT, save the key in the message, set status CLIENT_GETTING_KEYS. otherwise- raise error.
-- <b>CLIENT_RING_END</b>: if status is CLIENT_GETTING_KEYS, set status CLIENT_DONE. otherwise- raise error.
+- <b>CLIENT_RING_END</b>: if status is CLIENT_GETTING_KEYS, set status CLIENT_GOT_KEYS. otherwise- raise error.
 
 ## Broadcast message in the network
 ```
