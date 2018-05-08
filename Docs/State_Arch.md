@@ -12,8 +12,8 @@ The following statuses are defined:
 
 <b> Statuses that are relevant for Client only</b>
 -  CLIENT_INIT: The node is waiting the get from the Master a subset of keys from the keys pool
--  CLIENT_GOT_KEYS: The client got its subset of keys and their indexes
--  CLIENT_DONE: The client discovered itself to the network members.
+-  CLIENT_GETTING_KEYS: The client got its subset of keys and their indexes
+-  CLIENT_DONE: The client got its key ring from the master
 
 ## State Class
 This class will hold all the node's data that is required to be shared between the two threads, and will availble for reading and writing across the files/functions.
