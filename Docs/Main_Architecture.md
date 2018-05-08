@@ -24,8 +24,8 @@ state.status = NODE_INIT
 // ask "who is Master" in the network. return True if I am the Master, False otherwise
 state.IAmMaster = client.findMaster(state)
 ```
-## Master and Client operations
-At this point, a Master node will create keys and will send the to other nodes on the network. All Client will wait untill they get their keys from the Master.
+## Master operations
+At this point, a Master node will create keys and will send the to other nodes on the network, encrypted with their public keys. before sending a key ring, the master should wait for the public from the corresponding node. All Clients will wait untill they get their keys from the Master.
 
 See more about Master operations [here](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/Master_Arch.md), and about Client's [here](https://github.com/reutnagar/distributed-RSA-for-IoT/blob/master/Docs/Client_Arch.md)
 ```
@@ -39,8 +39,14 @@ if(state.IAmMaster): // perform Master logic
 	// send the sub-pool keys
 	master.sendKeys(state)
 	state.status = MASTER_DONE	
+```
+## Client operation
+The client will generate public and private key, and will send the master its public key. The key ring of the client will be encrypted with this public key, and the client will decrypt it with its private key.
+```
 else: // client logic
 	state.status = CLIENT_INIT
+	client.generate_RSA_key()
+	client.send_public_key_to_master()
 	// wait untill key are sent from Master
 	while(state.status != CLIENT_GOT_KEYS)
 	// publish my IP in the network
