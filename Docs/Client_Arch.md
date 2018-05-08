@@ -35,6 +35,17 @@ findMaster(state):
 				return True
 	return False
 ```
+## Generate Asymetric key pair
+```
+generate_RSA_key():
+		
+```
+## Send Public key
+```
+send_public_key_to_master():
+	public = state.publicKey
+	messages.send_single_message(CLIENT_PUBLIC_KEY, public)
+```
 ## Publish The Node IP
 ```
 publishMe():
