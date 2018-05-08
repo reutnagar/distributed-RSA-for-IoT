@@ -31,10 +31,11 @@ generateKeyPool(poolSize):
 ```
 
 ## Distibution of the key
-Send a random subset of keys to each client
+Send a random subset of keys to each client, encryped with their public key
 ```
 sendKeys(state):
-  for client in state.toSendKeys:
+  for client in state.toSendKeys: # send the key to nodes that already sent their public key
     index = random(state.poolSize)
-    messages.send(state.keyPool[i])
+    cipher = encrypt(public, state.keyPool[i])
+    messages.send(cipher)
 ```
