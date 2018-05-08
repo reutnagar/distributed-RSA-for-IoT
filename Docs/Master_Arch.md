@@ -37,5 +37,6 @@ sendKeys(state):
   for client in state.toSendKeys: # send the key to nodes that already sent their public key
     index = random(state.poolSize)
     cipher = encrypt(public, state.keyPool[i])
-    messages.send(cipher)
+    messages.send(CLIENT_RING_KEYS, index, cipher)
+  messages.send(CLIENT_RING_END)
 ```
