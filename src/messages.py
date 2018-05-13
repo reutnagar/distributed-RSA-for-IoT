@@ -1,8 +1,4 @@
-import struct
-import threading
-import socket
-import time
-import os
+import struct, threading, pickle, socket, time, os
 from state import *
 from global_data import state
 
@@ -11,6 +7,11 @@ I_AM_MASTER = "I_AM_MASTER"
 CLIENT_KEYS = "CLIENT_KEYS"
 PORT = 8882
 
+class Message(object):
+	def __init__(self, type, dataID, data):
+		self.type = type
+		self.dataID = dataID
+		self.data = data
 
 if os.name != "nt":
     import fcntl
@@ -47,21 +48,24 @@ def async_listen():
 
 def listen(socket):
 	while True:
-	  message , address = get_msg(socket)
+	  bits , address = get_msg(socket)
 	  if my_ip != address[0]:
 		break
-	print 'Got message: %s. from : %s' % (str(message), address[0])
-	return str(message), address[0]
+	print("In listen. bits: "+str(bits))
+	msg = pickle.loads(bits)
+	print("In listen. msg: "+str(msg))
+	# print 'Got message: %s. from : %s' % (msg.type, address[0])
+	return msg, address[0]
 
 
 def process_message(message, ip):
-	print("in process_message. msg: "+ str(message))
-	if message == 'IS_THERE_MASTER':
+	print("in process_message. msg: "+ str(message.type))
+	if message.type == 'IS_THERE_MASTER':
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			send_single_msg(I_AM_MASTER, ip)
+			send_single_msg(I_AM_MASTER,0,None, ip)
 			state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
 			print("Sent message I_AM_MASTER to IP: "+ str(ip))
-	elif message == 'I_AM_MASTER':
+	elif message.type == 'I_AM_MASTER':
 		if state.status == NODE_INIT:
 			state.status = MASTER_FOUND
 			state.masterIP = ip
@@ -70,10 +74,10 @@ def process_message(message, ip):
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
 		else:
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
-	elif message == 'I_AM_ON_THE_NETWORK': 
+	elif message.type == 'I_AM_ON_THE_NETWORK': 
 		if ip not in state.neighbors:
 			state.neighbors.append(ip)
-	elif message == 'CLIENT_SUBSET_KEYS':
+	elif message.type == 'CLIENT_SUBSET_KEYS':
 		if state.status == 'CLIENT_INIT':
 			print 'recieve the list of the keys'
 	else:
@@ -111,21 +115,25 @@ def get_msg(s):
 
 def send_msg(s, data, ip):
 	header = struct.pack('>i', len(data))
+	print("in send_msg. count is: "+ str(len(data)))
 	_send_block(s, header, ip)
 	_send_block(s, data, ip)
-	print '1'+header
-	print '2'+data
+	#print '1'+header
+	#print '2'+data
 
-def broadcast(message): #send broadcast message
-	print("Broadcast massage: "+ message)
-	send_single_msg(message, '<broadcast>')
+def broadcast(type, dataID, data): #send broadcast message
+	print("Broadcast massage: "+ type)
+	send_single_msg(type, dataID, data, '<broadcast>')
 
-def send_single_msg(message,ip):
+def send_single_msg(type, dataID, data,ip):
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	if ip == '<broadcast>':
 		s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-	send_msg(s, message, ip)
+	# serialize the message to a byte stream
+	msg = Message(type,dataID,data)
+	bits = pickle.dumps(msg)
+	send_msg(s, bits, ip)
 	s.close()
 
 

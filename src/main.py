@@ -1,6 +1,6 @@
 from state import *
 from global_data import *
-import messages, master, client
+import messages, client
 
 print("**Node startup**")
 
@@ -16,6 +16,7 @@ state.IAmMaster = client.find_master()
 print("in main. Master is found!")
 
 if(state.IAmMaster): # perform Master logic
+	import master
 	state.status = MASTER_INIT
 	
 	# Master calculations
