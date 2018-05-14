@@ -95,17 +95,30 @@ def generate_sub_keys(key_pool, k):
         sub_keys[id] = key_pool[id]
     return sub_keys
 	
-def send_keys():
-#	while(len(state.toSendKeys) == 0):
-#		pass
-#	time.sleep(20)
-	print("Sending the keys to the Clients...")
-#	for addrs in state.toSendKeys:
-#		print("Sending to: "+ str(addrs))
-#		messages.send_single_msg(messages.CLIENT_KEYS, addrs)
-#		messages.send_header(2*KEY_SIZE, addrs)
-#		for i in xrange(2):
-#			key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
-#			print(str(i)+ ": "+ key)
-#			messages.send_data(key, addrs)
+# def send_keys():
+# #	while(len(state.toSendKeys) == 0):
+# #		pass
+# #	time.sleep(20)
+	# print("Sending the keys to the Clients...")
+# #	for addrs in state.toSendKeys:
+# #		print("Sending to: "+ str(addrs))
+# #		messages.send_single_msg(messages.CLIENT_KEYS, addrs)
+# #		messages.send_header(2*KEY_SIZE, addrs)
+# #		for i in xrange(2):
+# #			key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
+# #			print(str(i)+ ": "+ key)
+# #			messages.send_data(key, addrs)
 	
+def send_keys(state):
+	print 'in send_keys'
+	for client in state.toSendKeys: # send the key to nodes that already sent their public key
+		sent_keys = 0
+		ip = state.toSendKeys[0]
+		while(sent_keys < state.subKeysSize):
+			#index = random(state.poolSize)
+			index = 7
+			#cipher = encrypt(public, state.keyPool[i])
+			cipher = "y6rfty56tvuyfhgdh"
+			messages.send_single_msg('CLIENT_RING_KEYS', index, cipher,ip)
+			sent_keys+=1
+		messages.send_single_msg('CLIENT_RING_END',0,None,ip)

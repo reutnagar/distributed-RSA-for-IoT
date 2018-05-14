@@ -25,7 +25,11 @@ if(state.IAmMaster): # perform Master logic
 	# generate the keys
 	state.keys = master.generate_key_pool()
 	# send the sub-pool keys
-	master.send_keys()
+	print 'a'
+	while(state.toSendKeys == []):
+		pass
+	print 'to_send_keys is not empty, there is an ip: ' + str(state.toSendKeys)
+	master.send_keys(state)
 	while(True):
 		pass
 	state.status = MASTER_DONE	
@@ -35,6 +39,8 @@ else: # client logic
 	print("Waiting to receive the keys from the Master...")
 	while(state.status != CLIENT_GOT_KEYS):  # now the code is stuck here!!
 		pass
+	print 'after recieving keys'
+	print state.keys
 	# publish my IP in the network
 	client.publishMe()
 	state.status = CLIENT_DONE	
