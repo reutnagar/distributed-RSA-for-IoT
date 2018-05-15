@@ -30,14 +30,17 @@ if(state.IAmMaster): # perform Master logic
 		pass
 	print 'to_send_keys is not empty, there is an ip: ' + str(state.toSendKeys)
 	master.send_keys(state)
+	state.status = MASTER_DONE
 	while(True):
 		pass
-	state.status = MASTER_DONE	
+		
 else: # client logic
 	state.status = CLIENT_INIT
 	# wait until key are sent from Master
 	print("Waiting to receive the keys from the Master...")
-	while(state.status != CLIENT_GOT_KEYS):  # now the code is stuck here!!
+	messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None,state.masterIP)
+	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP))
+	while(state.status != CLIENT_GOT_KEYS):  
 		pass
 	print 'after recieving keys'
 	print state.keys

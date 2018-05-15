@@ -51,7 +51,7 @@ def listen(socket):
 	  bits , address = get_msg(socket)
 	  if my_ip != address[0]:
 		break
-	print("In listen. bits: "+str(bits))
+	#print("In listen. bits: "+str(bits))
 	msg = pickle.loads(bits)
 	print("In listen. msg: "+str(msg))
 	#print("ip: "+str(msg.type)+"dataID: "+str(msg.dataID)+"data: "+str(msg.data)
@@ -63,9 +63,9 @@ def process_message(message, ip):
 	print("in process_message. msg: "+ str(message.type))
 	if message.type == 'IS_THERE_MASTER':
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			send_single_msg(I_AM_MASTER,0,None, ip)
-			state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
-			print state.toSendKeys
+			send_single_msg('I_AM_MASTER',0,None, ip)
+			#state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
+			#print state.toSendKeys
 			print("Sent message I_AM_MASTER to IP: "+ str(ip))
 	elif message.type == 'I_AM_MASTER':
 		if state.status == NODE_INIT:
@@ -76,18 +76,21 @@ def process_message(message, ip):
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
 		else:
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
-	elif message.type == 'I_AM_ON_THE_NETWORK': 
-		if ip not in state.neighbors:
-			state.neighbors.append(ip)
+	elif message.type == 'CLIENT_PUBLIC_KEY': 
+		if state.status == MASTER_INIT:
+			if ip not in state.neighbors:
+				state.neighbors.append(ip)
+			state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
+			print state.toSendKeys
 	elif message.type == 'CLIENT_RING_KEYS':
-		if state.status == 'CLIENT_INIT':
+		if state.status == CLIENT_INIT:
 			print 'recieve the list of the keys'
 			state.keys.append((dataID,data))
-			state.status = 'CLIENT_GETTING_KEYS'
+			state.status = CLIENT_GETTING_KEYS
 	elif message.type == 'CLIENT_RING_END':
-		if state.status == 'CLIENT_GETTING_KEYS':
+		if state.status == CLIENT_GETTING_KEYS:
 			print 'finish to recieve the keys'
-			state.status = 'CLIENT_GOT_KEYS'
+			state.status = CLIENT_GOT_KEYS
 	else:
 		print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 

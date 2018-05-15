@@ -122,3 +122,4 @@ def send_keys(state):
 			messages.send_single_msg('CLIENT_RING_KEYS', index, cipher,ip)
 			sent_keys+=1
 		messages.send_single_msg('CLIENT_RING_END',0,None,ip)
+		print 'finish torecieve keys'
