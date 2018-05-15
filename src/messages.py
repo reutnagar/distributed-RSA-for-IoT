@@ -4,7 +4,9 @@ from global_data import state
 
 IS_THERE_MASTER = "IS_THERE_MASTER"
 I_AM_MASTER = "I_AM_MASTER"
-CLIENT_KEYS = "CLIENT_KEYS"
+CLIENT_PUBLIC_KEY = "CLIENT_PUBLIC_KEY"
+CLIENT_RING_KEYS  = "CLIENT_RING_KEYS"
+CLIENT_RING_END = "CLIENT_RING_END"
 PORT = 5001
 
 class Message(object):
@@ -61,13 +63,13 @@ def listen(socket):
 
 def process_message(message, ip):
 	print("in process_message. msg: "+ str(message.type))
-	if message.type == 'IS_THERE_MASTER':
+	if message.type == IS_THERE_MASTER:
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			send_single_msg('I_AM_MASTER',0,None, ip)
+			send_single_msg(I_AM_MASTER,0,None, ip)
 			#state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
 			#print state.toSendKeys
 			print("Sent message I_AM_MASTER to IP: "+ str(ip))
-	elif message.type == 'I_AM_MASTER':
+	elif message.type == I_AM_MASTER:
 		if state.status == NODE_INIT:
 			state.status = MASTER_FOUND
 			state.masterIP = ip
@@ -76,18 +78,18 @@ def process_message(message, ip):
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
 		else:
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
-	elif message.type == 'CLIENT_PUBLIC_KEY': 
+	elif message.type == CLIENT_PUBLIC_KEY: 
 		if state.status == MASTER_INIT:
 			if ip not in state.neighbors:
 				state.neighbors.append(ip)
 			state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
 			print state.toSendKeys
-	elif message.type == 'CLIENT_RING_KEYS':
+	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT:
 			print 'recieve the list of the keys'
-			state.keys.append((dataID,data))
+			state.keys.append((message.dataID,message.data))
 			state.status = CLIENT_GETTING_KEYS
-	elif message.type == 'CLIENT_RING_END':
+	elif message.type == CLIENT_RING_END:
 		if state.status == CLIENT_GETTING_KEYS:
 			print 'finish to recieve the keys'
 			state.status = CLIENT_GOT_KEYS
@@ -133,7 +135,7 @@ def send_msg(s, data, ip):
 	#print '2'+data
 
 def broadcast(type, dataID, data): #send broadcast message
-	print("Broadcast massage: "+ type)
+	print("Broadcast massage: "+ str(type))
 	send_single_msg(type, dataID, data, '<broadcast>')
 
 def send_single_msg(type, dataID, data,ip):
