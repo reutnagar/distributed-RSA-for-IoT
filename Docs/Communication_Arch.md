@@ -25,10 +25,9 @@ The actions/ behavior that will be taken when the following messages are got:
 - <b>I_AM_ON_THE_NETWORK</b>: if the ip is not in neigbors list, add it.
 - <b>CLIENT_RING_KEYS</b>: if status is CLIENT_INIT, save the key in the message, set status CLIENT_GETTING_KEYS. otherwise- raise error.
 - <b>CLIENT_RING_END</b>: if status is CLIENT_GETTING_KEYS, set status CLIENT_GOT_KEYS. otherwise- raise error.
-- <b>CLIENT_START_SESSION</b>: if status is CLIENT_DONE- find common index in the index list save it in state.sessions, and send it in CLIENT_COMMON_INDEX. otherwise, return CLIENT_COMMON_INDEX with -1.
-- <b>CLIENT_COMMON_INDEX</b>: if status is CLIENT_DONE: save the index in state.sessions. otherwise do nothing.
-- <b>CLIENT_DATA_ENC</b>: if status is CLIENT_DONE and and the common index for the sender in state.sessions is not -1: encrypt the data
-by the key of the common index.
+- <b>CLIENT_START_SESSION</b>: if status is CLIENT_DONE- find common index in the index list save it in state.neighbors[ip], and send it in CLIENT_COMMON_INDEX. otherwise, return CLIENT_COMMON_INDEX with -1.
+- <b>CLIENT_COMMON_INDEX</b>: if status is CLIENT_DONE: save the index in state.neighbors[ip]. otherwise do nothing.
+- <b>CLIENT_DATA_ENC</b>: if status is CLIENT_DONE and and the common index for the sender in state.neighbors[ip] is not -1: encrypt the data by the key of the common index.
 
 ## Broadcast message in the network
 ```
