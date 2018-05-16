@@ -17,7 +17,7 @@ def nodesInNetwork():
 
 def calculate_sub_keys_size():
 	print("Master: Calculating  the subset size = " + str(M/KEY_SIZE))
-	return 30 #15 #M/8
+	return 15 #30 #15 #M/8
 	
 # size of sub keys 
 k = calculate_sub_keys_size()
@@ -113,7 +113,7 @@ def send_keys(state):
 	print 'in send_keys'
 	for client in state.toSendKeys: # send the key to nodes that already sent their public key
 		sent_keys = 0
-		ip = state.toSendKeys[0]
+		ip = client
 		while(sent_keys < state.subKeysSize):
 			#index = random(state.poolSize)
 			index = 7
@@ -122,4 +122,4 @@ def send_keys(state):
 			messages.send_single_msg('CLIENT_RING_KEYS', index, cipher,ip)
 			sent_keys+=1
 		messages.send_single_msg('CLIENT_RING_END',0,None,ip)
-		print 'finish torecieve keys'
+		print 'finish to send keys'

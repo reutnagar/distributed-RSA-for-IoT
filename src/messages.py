@@ -50,9 +50,10 @@ def async_listen():
 
 def listen(socket):
 	while True:
-	  bits , address = get_msg(socket)
-	  if my_ip != address[0]:
-		break
+		bits , address = get_msg(socket)
+		#print("aaaaaaaaa"+str(bits)+str(address))
+		if my_ip != address[0]:
+			break
 	#print("In listen. bits: "+str(bits))
 	msg = pickle.loads(bits)
 	print("In listen. msg: "+str(msg))
@@ -79,20 +80,21 @@ def process_message(message, ip):
 		else:
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 	elif message.type == CLIENT_PUBLIC_KEY: 
-		if state.status == MASTER_INIT:
+		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
 			if ip not in state.neighbors:
 				state.neighbors.append(ip)
 			state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
 			print state.toSendKeys
 	elif message.type == CLIENT_RING_KEYS:
-		if state.status == CLIENT_INIT:
-			print 'recieve the list of the keys'
+		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
+			print 'recieve key'
 			state.keys.append((message.dataID,message.data))
 			state.status = CLIENT_GETTING_KEYS
 	elif message.type == CLIENT_RING_END:
 		if state.status == CLIENT_GETTING_KEYS:
 			print 'finish to recieve the keys'
 			state.status = CLIENT_GOT_KEYS
+			print('keys: '+state.keys)
 	else:
 		print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 

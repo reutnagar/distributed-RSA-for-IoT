@@ -47,6 +47,7 @@ else: # client logic
 	# publish my IP in the network
 	client.publishMe()
 	state.status = CLIENT_DONE	
+	print('end client, now')
 
 # Secured network has been established, can continue other work...
 #while(True)
