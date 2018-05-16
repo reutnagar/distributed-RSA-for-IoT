@@ -24,7 +24,7 @@ class State(object):
 	status = INIT // hold the current state/ status of the node in the network
 	IAmMaster = False // whether this node is the Master
 	
-	neighbors = []  // list of known neighbors on the network
+	neighbors = {}  // dictionary of known neighbors on the network, and the common key index. the key index initialized to -1.
 	myKeys = []  // list of my sub pool of keys, with their indexes
 	masterIP = "" // will hold the IP of the Master on the network
 	
