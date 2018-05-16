@@ -104,26 +104,35 @@ def process_message(message, ip):
 #############################
 
 def _get_block(s, count):
-    if count <= 0:
-        return ''
-    buf = ''
-    while len(buf) < count:
-        buf2, address = s.recvfrom(count - len(buf))
-        if not buf2:
-            # error or just end of connection?
-            if buf:
-                raise RuntimeError("underflow")
-            else:
-                return ''
-        buf += buf2
-    return buf, address
+	print("cccccc")
+	if count <= 0:
+		return ''
+	buf = ''
+	while len(buf) < count:
+		print("ddddddddd")
+		buf2, address = s.recvfrom(count - len(buf))
+		print("eeeeeeee")
+		if not buf2:
+			print("ffffffffff")
+			# error or just end of connection?
+			if buf:
+				print("gggggggg")
+				raise RuntimeError("underflow")
+			else:
+				print("hhhhhhhhh")
+				return ''
+		buf += buf2
+	print("iiiiiii")
+	return buf, address
 
 def _send_block(s, data, ip):
     while data:
         data = data[s.sendto(data, (ip,PORT)):]
 
 def get_msg(s):
+	print("aaaaaaaaaaaaaaaa")
 	header, ip = _get_block(s, 4)
+	print("bbbbbbbbbbbbbb")
 	count = struct.unpack('>i', header)[0]
 	print("in get_msg. count is: "+ str(count))
 	return _get_block(s, count)

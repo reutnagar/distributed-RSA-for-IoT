@@ -38,6 +38,7 @@ else: # client logic
 	state.status = CLIENT_INIT
 	# wait until key are sent from Master
 	print("Waiting to receive the keys from the Master...")
+	#messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None,state.masterIP)  not work, why????
 	messages.broadcast('CLIENT_PUBLIC_KEY',0,None)
 	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP))
 	while(state.status != CLIENT_GOT_KEYS):  
