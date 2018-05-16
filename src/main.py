@@ -31,16 +31,15 @@ if(state.IAmMaster): # perform Master logic
 	print 'to_send_keys is not empty, there is an ip: ' + str(state.toSendKeys)
 	master.send_keys(state)
 	state.status = MASTER_DONE
-	while(True):
-		pass
-		
+	
 else: # client logic
 	state.status = CLIENT_INIT
+	# send public key to master
+	messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None, state.masterIP)
+	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP))
+
 	# wait until key are sent from Master
 	print("Waiting to receive the keys from the Master...")
-	#messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None,state.masterIP)  not work, why????
-	messages.broadcast('CLIENT_PUBLIC_KEY',0,None)
-	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP))
 	while(state.status != CLIENT_GOT_KEYS):  
 		pass
 	print 'after recieving keys'
@@ -51,4 +50,5 @@ else: # client logic
 	print('end client, now')
 
 # Secured network has been established, can continue other work...
-#while(True)
+while(True):
+	pass

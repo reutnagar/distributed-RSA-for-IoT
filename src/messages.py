@@ -7,6 +7,7 @@ I_AM_MASTER = "I_AM_MASTER"
 CLIENT_PUBLIC_KEY = "CLIENT_PUBLIC_KEY"
 CLIENT_RING_KEYS  = "CLIENT_RING_KEYS"
 CLIENT_RING_END = "CLIENT_RING_END"
+I_AM_ON_THE_NETWORK = "I_AM_ON_THE_NETWORK"
 PORT = 5001
 
 class Message(object):
@@ -51,13 +52,9 @@ def async_listen():
 def listen(socket):
 	while True:
 		bits , address = get_msg(socket)
-		#print("aaaaaaaaa"+str(bits)+str(address))
 		if my_ip != address[0]:
 			break
-	#print("In listen. bits: "+str(bits))
 	msg = pickle.loads(bits)
-	print("In listen. msg: "+str(msg))
-	#print("ip: "+str(msg.type)+"dataID: "+str(msg.dataID)+"data: "+str(msg.data)
 	print 'Got message: %s. from : %s' % (msg.type, address[0])
 	return msg, address[0]
 
@@ -74,7 +71,7 @@ def process_message(message, ip):
 		if state.status == NODE_INIT:
 			state.status = MASTER_FOUND
 			state.masterIP = ip
-			print("in process_message I_AM_MASTER. Master is found!!")
+			print("in process_message I_AM_MASTER. Master is found!! master IP is : "+ str(ip))
 		elif state.status == INIT:
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
 		else:
@@ -87,14 +84,18 @@ def process_message(message, ip):
 			print state.toSendKeys
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
-			print 'recieve key'
+			print("Receive key, index: "+str(message.dataID))
 			state.keys.append((message.dataID,message.data))
 			state.status = CLIENT_GETTING_KEYS
 	elif message.type == CLIENT_RING_END:
 		if state.status == CLIENT_GETTING_KEYS:
-			print 'finish to recieve the keys'
+			print 'Finish to recieve the keys'
 			state.status = CLIENT_GOT_KEYS
-			print('keys: '+state.keys)
+			print('keys: '+str(state.keys))
+	elif message.type == I_AM_ON_THE_NETWORK:
+		if ip not in state.neighbors:
+			print("Add neighbor ip: "+str(ip))
+			state.neighbors.append(ip)
 	else:
 		print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 
@@ -104,25 +105,18 @@ def process_message(message, ip):
 #############################
 
 def _get_block(s, count):
-	print("cccccc")
 	if count <= 0:
 		return ''
 	buf = ''
 	while len(buf) < count:
-		print("ddddddddd")
 		buf2, address = s.recvfrom(count - len(buf))
-		print("eeeeeeee")
 		if not buf2:
-			print("ffffffffff")
 			# error or just end of connection?
 			if buf:
-				print("gggggggg")
 				raise RuntimeError("underflow")
 			else:
-				print("hhhhhhhhh")
 				return ''
 		buf += buf2
-	print("iiiiiii")
 	return buf, address
 
 def _send_block(s, data, ip):
@@ -130,9 +124,7 @@ def _send_block(s, data, ip):
         data = data[s.sendto(data, (ip,PORT)):]
 
 def get_msg(s):
-	print("aaaaaaaaaaaaaaaa")
 	header, ip = _get_block(s, 4)
-	print("bbbbbbbbbbbbbb")
 	count = struct.unpack('>i', header)[0]
 	print("in get_msg. count is: "+ str(count))
 	return _get_block(s, count)
@@ -150,6 +142,7 @@ def broadcast(type, dataID, data): #send broadcast message
 	send_single_msg(type, dataID, data, '<broadcast>')
 
 def send_single_msg(type, dataID, data,ip):
+	print("in send_single_msg. sending message " +str(type)+" to: "+ str(ip))
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	if ip == '<broadcast>':
 		s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -181,14 +174,5 @@ def send_data(data,ip):
 	if(openedSocketSize <= 0):
 		openedSocket.close()
 
-
-# def send_multiple_msg(size,data,ip):
-# 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# 	s.connect(('', PORT))
-# 	send_header(size,ip)
-# 	send_data(s, data)
-# 	print(header)
-# 	print(data)
-	
 	
 	

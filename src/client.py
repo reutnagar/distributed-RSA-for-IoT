@@ -23,4 +23,5 @@ def find_master():
 	return False
 
 def publishMe():
+	messages.broadcast(messages.I_AM_ON_THE_NETWORK, 0,None)
 	print("Publish my IP on the network...")
