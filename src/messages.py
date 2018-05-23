@@ -8,6 +8,8 @@ CLIENT_PUBLIC_KEY = "CLIENT_PUBLIC_KEY"
 CLIENT_RING_KEYS  = "CLIENT_RING_KEYS"
 CLIENT_RING_END = "CLIENT_RING_END"
 I_AM_ON_THE_NETWORK = "I_AM_ON_THE_NETWORK"
+CLIENT_START_SESSION = "CLIENT_START_SESSION"
+CLIENT_COMMON_INDEX  = "CLIENT_COMMON_INDEX"
 PORT = 5001
 
 class Message(object):
@@ -78,9 +80,10 @@ def process_message(message, ip):
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 	elif message.type == CLIENT_PUBLIC_KEY: 
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			if ip not in state.neighbors:
+			ips = [i[0] for i in state.neighbors]
+			if ip not in ips:
 				state.neighbors.append(ip)
-			state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
+			state.toSendKeys.append((ip,-1)) # TODO: if MASTER_DONE- send now
 			print state.toSendKeys
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
@@ -93,9 +96,24 @@ def process_message(message, ip):
 			state.status = CLIENT_GOT_KEYS
 			print('keys: '+str(state.keys))
 	elif message.type == I_AM_ON_THE_NETWORK:
-		if ip not in state.neighbors:
+		ips = [i[0] for i in state.neighbors]
+		if ip not in ips:
 			print("Add neighbor ip: "+str(ip))
-			state.neighbors.append(ip)
+			state.neighbors.append((ip,-1))
+			print("the state.neighbors: "+str(state.neighbors))
+	elif message.type == CLIENT_START_SESSION:
+		if state.status == CLIENT_DONE:
+			print('message.data: '+str(message.data))
+			common_keys = list(set(message.data).intersection(state.keys))
+			print ('common keys: '+str(common_keys))
+			for index, neighbor in enumerate(state.neighbors):
+				list_neighbor = list(neighbor)
+				print("list_neighbor: "+str(list_neighbor)) 
+				if list_neighbor[0] == ip:
+					list_neighbor[1]= common_keys[0]
+				neighbors[index] = tuple(list_neighbor)
+	#elif message.type == CLIENT_COMMON_INDEX:
+		
 	else:
 		print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 

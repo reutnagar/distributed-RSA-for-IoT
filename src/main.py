@@ -35,7 +35,8 @@ if(state.IAmMaster): # perform Master logic
 else: # client logic
 	state.status = CLIENT_INIT
 	# send public key to master
-	messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None, state.masterIP)
+	#messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None, state.masterIP)
+	messages.broadcast('CLIENT_PUBLIC_KEY',0,None)
 	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP))
 
 	# wait until key are sent from Master
