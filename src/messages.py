@@ -80,9 +80,9 @@ def process_message(message, ip):
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 	elif message.type == CLIENT_PUBLIC_KEY: 
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			ips = [i[0] for i in state.neighbors]
-			if ip not in ips:
-				state.neighbors.append(ip)
+			# ips = [i[0] for i in state.neighbors]
+			# if ip not in ips:
+				# state.neighbors.append((ip,-1))
 			state.toSendKeys.append((ip,-1)) # TODO: if MASTER_DONE- send now
 			print state.toSendKeys
 	elif message.type == CLIENT_RING_KEYS:
