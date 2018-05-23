@@ -113,7 +113,7 @@ def send_keys(state):
 	print 'in send_keys'
 	for client in state.toSendKeys: # send the key to nodes that already sent their public key
 		sent_keys = 0
-		ip = client
+		ip = client[0]
 		while(sent_keys < state.subKeysSize):
 			#index = random(state.poolSize)
 			index = 7
