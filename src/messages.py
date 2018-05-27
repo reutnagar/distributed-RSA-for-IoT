@@ -102,16 +102,18 @@ def process_message(message, ip):
 			state.neighbors.append((ip,-1))
 			print("the state.neighbors: "+str(state.neighbors))
 	elif message.type == CLIENT_START_SESSION:
-		if state.status == CLIENT_DONE:
+		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			print('message.data: '+str(message.data))
 			common_keys = list(set(message.data).intersection(state.keys))
+			common_keys = list(set(message.data).intersection([22,1,4,0,5,44]))
 			print ('common keys: '+str(common_keys))
 			for index, neighbor in enumerate(state.neighbors):
 				list_neighbor = list(neighbor)
 				print("list_neighbor: "+str(list_neighbor)) 
 				if list_neighbor[0] == ip:
 					list_neighbor[1]= common_keys[0]
-				neighbors[index] = tuple(list_neighbor)
+				state.neighbors[index] = tuple(list_neighbor)
+				print('neighbors: '+str(state.neighbors))
 	#elif message.type == CLIENT_COMMON_INDEX:
 		
 	else:

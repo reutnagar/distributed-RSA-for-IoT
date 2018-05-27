@@ -31,6 +31,9 @@ if(state.IAmMaster): # perform Master logic
 	print 'to_send_keys is not empty, there is an ip: ' + str(state.toSendKeys)
 	master.send_keys(state)
 	state.status = MASTER_DONE
+	index1= [22,1,4,0,5,44]
+	#state.keys.append(index1)
+	
 	
 else: # client logic
 	state.status = CLIENT_INIT
@@ -49,6 +52,10 @@ else: # client logic
 	client.publishMe()
 	state.status = CLIENT_DONE	
 	print('end client, now')
+	index2 = [2,7,3,4,9,23]
+	ip1 = '10.0.0.6'
+	messages.broadcast(messages.CLIENT_START_SESSION,0,index2)
+	print('send list of indexes: '+str(index2))
 
 # Secured network has been established, can continue other work...
 while(True):
