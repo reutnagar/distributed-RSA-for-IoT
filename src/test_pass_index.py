@@ -1,7 +1,9 @@
 import main
 
 #list_of_indexes = state.keys()
-list_of_indexes = [2,7,5,3,4,5,9,88]
-ip = '10.0.0.14'
-messages.send_single_msg(message.CLIENT_START_SESSION,0,list_of_indexes,ip)
+list_of_indexes1 = [2,7,5,3,4,5,9,88]
+list_of_indexes2 = [1,4,7,9,33,5]
+ip1 = '10.0.0.14'
+ip2 = '10.0.0.6'
+messages.send_single_msg(messages.CLIENT_START_SESSION,0,list_of_indexes1,ip1)
 print('send list of indexes')
