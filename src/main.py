@@ -32,6 +32,7 @@ if(state.IAmMaster): # perform Master logic
 	master.send_keys(state)
 	state.status = MASTER_DONE
 	index1= [22,1,4,0,5,44]
+	print(index1)
 	#state.keys.append(index1)
 	
 	
