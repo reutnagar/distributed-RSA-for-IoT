@@ -104,7 +104,7 @@ def process_message(message, ip):
 	elif message.type == CLIENT_START_SESSION:
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			print('message.data: '+str(message.data))
-			common_keys = list(set(message.data).intersection(state.keys))
+			#common_keys = list(set(message.data).intersection(state.keys))
 			common_keys = list(set(message.data).intersection([22,1,4,0,5,44]))
 			print ('common keys: '+str(common_keys))
 			for index, neighbor in enumerate(state.neighbors):
