@@ -73,6 +73,7 @@ def process_message(message, ip):
 		if state.status == NODE_INIT:
 			state.status = MASTER_FOUND
 			state.masterIP = ip
+			state.neighbors.append((ip,-1))
 			print("in process_message I_AM_MASTER. Master is found!! master IP is : "+ str(ip))
 		elif state.status == INIT:
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
@@ -121,6 +122,13 @@ def process_message(message, ip):
 			broadcast(CLIENT_COMMON_INDEX,data_id,None)
 	elif message.type == CLIENT_COMMON_INDEX:
 		print('got CLIENT_COMMON_INDEX msg, the common_key is: '+str(message.dataID))
+		for index, neighbor in enumerate(state.neighbors):
+			list_neighbor = list(neighbor)
+			print("list_neighbor: "+str(list_neighbor)) 
+			if list_neighbor[0] == ip:
+				list_neighbor[1] = message.dataID
+			state.neighbors[index] = tuple(list_neighbor)
+			print('neighbors: '+str(state.neighbors))
 	else:
 		print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 
