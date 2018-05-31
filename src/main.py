@@ -41,7 +41,8 @@ else: # client logic
 	# send public key to master
 	#messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None, state.masterIP)
 	messages.broadcast('CLIENT_PUBLIC_KEY',0,None)
-	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP))
+	#messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None,state.masterIP)
+	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP)+' now its broadcast')
 
 	# wait until key are sent from Master
 	print("Waiting to receive the keys from the Master...")
@@ -51,10 +52,11 @@ else: # client logic
 	print state.keys
 	# publish my IP in the network
 	client.publishMe()
-	state.status = CLIENT_DONE	
+	state.status = CLIENT_DONE
 	print('end client, now')
 	index2 = [2,7,3,4,9,23]
 	ip1 = '10.0.0.6'
+	#messages.send_single_msg(messages.CLIENT_START_SESSION,0,index2,ip1)
 	messages.broadcast(messages.CLIENT_START_SESSION,0,index2)
 	print('send list of indexes: '+str(index2))
 

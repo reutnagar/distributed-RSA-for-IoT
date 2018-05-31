@@ -103,19 +103,24 @@ def process_message(message, ip):
 			print("the state.neighbors: "+str(state.neighbors))
 	elif message.type == CLIENT_START_SESSION:
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
+			data_id = -1
 			print('message.data: '+str(message.data))
 			#common_keys = list(set(message.data).intersection(state.keys))
 			common_keys = list(set(message.data).intersection([22,1,4,0,5,44]))
 			print ('common keys: '+str(common_keys))
-			for index, neighbor in enumerate(state.neighbors):
-				list_neighbor = list(neighbor)
-				print("list_neighbor: "+str(list_neighbor)) 
-				if list_neighbor[0] == ip:
-					list_neighbor[1]= common_keys[0]
-				state.neighbors[index] = tuple(list_neighbor)
-				print('neighbors: '+str(state.neighbors))
-	#elif message.type == CLIENT_COMMON_INDEX:
-		
+			if common_keys: 
+				for index, neighbor in enumerate(state.neighbors):
+					list_neighbor = list(neighbor)
+					print("list_neighbor: "+str(list_neighbor)) 
+					if list_neighbor[0] == ip:
+						list_neighbor[1]= common_keys[0]
+					state.neighbors[index] = tuple(list_neighbor)
+					print('neighbors: '+str(state.neighbors))
+				data_id = common_keys[0]
+			#messages.send_single_msg(CLIENT_COMMON_INDEX,-1,None,ip)
+			broadcast(CLIENT_COMMON_INDEX,data_id,None)
+	elif message.type == CLIENT_COMMON_INDEX:
+		print('got CLIENT_COMMON_INDEX msg, the common_key is: '+str(message.dataID))
 	else:
 		print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 
