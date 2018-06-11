@@ -20,17 +20,19 @@ class Message(object):
 
 if os.name != "nt":
     import fcntl
-    #import struct
 
     def get_interface_ip(ifname):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s',
                                 ifname[:15]))[20:24])
 
-if os.name != "nt": # for Arduino
-    my_ip = get_interface_ip("apcli0")
-else:               # for Windows PC
+if os.name == "nt": # for Windows PC
     my_ip = socket.gethostbyname(socket.gethostname())
+elif os.name == "posix": # for Ubuntu
+	my_ip = get_interface_ip("ens33")
+else: # for Arduino
+    my_ip = get_interface_ip("apcli0")
+               
 
 print("My IP is: " + my_ip)
 
@@ -85,7 +87,7 @@ def process_message(message, ip):
 			# if ip not in ips:
 				# state.neighbors.append((ip,-1))
 			state.toSendKeys.append((ip,-1)) # TODO: if MASTER_DONE- send now
-			print state.toSendKeys
+			print(state.toSendKeys)
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
 			print("Receive key, index: "+str(message.dataID))
@@ -93,7 +95,7 @@ def process_message(message, ip):
 			state.status = CLIENT_GETTING_KEYS
 	elif message.type == CLIENT_RING_END:
 		if state.status == CLIENT_GETTING_KEYS:
-			print 'Finish to recieve the keys'
+			print('Finish to recieve the keys')
 			state.status = CLIENT_GOT_KEYS
 			print('keys: '+str(state.keys))
 	elif message.type == I_AM_ON_THE_NETWORK:
@@ -107,7 +109,7 @@ def process_message(message, ip):
 			data_id = -1
 			print('message.data: '+str(message.data))
 			common_keys = list(set(message.data).intersection([x[0] for x in state.keys]))
-			print ('common keys: '+str(common_keys))
+			print('common keys: '+str(common_keys))
 			if common_keys: 
 				for index, neighbor in enumerate(state.neighbors):
 					list_neighbor = list(neighbor)
@@ -166,8 +168,6 @@ def send_msg(s, data, ip):
 	print("in send_msg. count is: "+ str(len(data)))
 	_send_block(s, header, ip)
 	_send_block(s, data, ip)
-	#print '1'+header
-	#print '2'+data
 
 def broadcast(type, dataID, data): #send broadcast message
 	print("Broadcast massage: "+ str(type))
