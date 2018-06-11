@@ -84,6 +84,7 @@ def generate_key_pool():
 		key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
 		key_pool.append(key)  # add the key to the pool. the key index is its index on this list
 	print("Generated pool of size: "+ str(len(key_pool)))
+	print(key_pool)
 	return key_pool
 	
 def generate_sub_keys(key_pool, k):
@@ -111,15 +112,14 @@ def generate_sub_keys(key_pool, k):
 	
 def send_keys(state):
 	print 'in send_keys'
-	for client in state.toSendKeys: # send the key to nodes that already sent their public key
+	for index, client in enumerate(state.toSendKeys): # send the key to nodes that already sent their public key
 		sent_keys = 0
-		ip = client[0]
+		ip = client[index]
 		while(sent_keys < state.subKeysSize):
-			#index = random(state.poolSize)
-			index = 7
+			key_index = int(math.floor(random.random() * len(state.pool_keys)))
 			#cipher = encrypt(public, state.keyPool[i])
-			cipher = "y6rfty56tvuyfhgdh"
-			messages.send_single_msg('CLIENT_RING_KEYS', index, cipher,ip)
+			cipher = state.pool_keys[key_index]
+			messages.send_single_msg('CLIENT_RING_KEYS', key_index, cipher,ip)
 			sent_keys+=1
 		messages.send_single_msg('CLIENT_RING_END',0,None,ip)
 		print 'finish to send keys'

@@ -106,8 +106,7 @@ def process_message(message, ip):
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			data_id = -1
 			print('message.data: '+str(message.data))
-			#common_keys = list(set(message.data).intersection(state.keys))
-			common_keys = list(set(message.data).intersection([22,1,4,0,5,44]))
+			common_keys = list(set(message.data).intersection([x[0] for x in state.keys]))
 			print ('common keys: '+str(common_keys))
 			if common_keys: 
 				for index, neighbor in enumerate(state.neighbors):

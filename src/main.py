@@ -23,17 +23,17 @@ if(state.IAmMaster): # perform Master logic
 	state.poolSize = master.calculate_pool_size()
 	state.subKeysSize = master.calculate_sub_keys_size()
 	# generate the keys
-	state.keys = master.generate_key_pool()
+	state.pool_keys = master.generate_key_pool()
+	for index, key in enumerate(state.pool_keys):
+		state.keys.append((index,key))
+	#state.keys = [(1,'frergef'),(55,'regfghg'),(34,'kkkkk')] #only for testing!!
+	print('my keys: '+str(state.keys))
 	# send the sub-pool keys
-	print 'a'
 	while(state.toSendKeys == []):
 		pass
 	print 'to_send_keys is not empty, there is an ip: ' + str(state.toSendKeys)
 	master.send_keys(state)
 	state.status = MASTER_DONE
-	index1= [22,1,4,0,5,44]
-	print(index1)
-	#state.keys.append(index1)
 	
 	
 else: # client logic
@@ -54,11 +54,9 @@ else: # client logic
 	client.publishMe()
 	state.status = CLIENT_DONE
 	print('end client, now')
-	index2 = [2,7,3,4,9,23]
-	ip1 = '10.0.0.6'
 	#messages.send_single_msg(messages.CLIENT_START_SESSION,0,index2,ip1)
-	messages.broadcast(messages.CLIENT_START_SESSION,0,index2)
-	print('send list of indexes: '+str(index2))
+	messages.broadcast(messages.CLIENT_START_SESSION,0,[x[0] for x in state.keys])
+	print('send list of indexes: '+str(state.keys))
 
 # Secured network has been established, can continue other work...
 while(True):
