@@ -27,11 +27,11 @@ if(state.IAmMaster): # perform Master logic
 	for index, key in enumerate(state.pool_keys):
 		state.keys.append((index,key))
 	#state.keys = [(1,'frergef'),(55,'regfghg'),(34,'kkkkk')] #only for testing!!
-	print('my keys: '+str(state.keys))
+	print("my keys: "+str(state.keys))
 	# send the sub-pool keys
 	while(state.toSendKeys == []):
 		pass
-	print 'to_send_keys is not empty, there is an ip: ' + str(state.toSendKeys)
+	print("to_send_keys is not empty, there is an ip: " + str(state.toSendKeys))
 	master.send_keys(state)
 	state.status = MASTER_DONE
 	
@@ -48,8 +48,8 @@ else: # client logic
 	print("Waiting to receive the keys from the Master...")
 	while(state.status != CLIENT_GOT_KEYS):  
 		pass
-	print 'after recieving keys'
-	print state.keys
+	print('after recieving keys: ')
+	print(state.keys)
 	# publish my IP in the network
 	client.publishMe()
 	state.status = CLIENT_DONE

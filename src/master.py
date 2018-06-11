@@ -111,7 +111,7 @@ def generate_sub_keys(key_pool, k):
 # #			messages.send_data(key, addrs)
 	
 def send_keys(state):
-	print 'in send_keys'
+	print('in send_keys')
 	for index, client in enumerate(state.toSendKeys): # send the key to nodes that already sent their public key
 		sent_keys = 0
 		ip = client[index]
@@ -122,4 +122,4 @@ def send_keys(state):
 			messages.send_single_msg('CLIENT_RING_KEYS', key_index, cipher,ip)
 			sent_keys+=1
 		messages.send_single_msg('CLIENT_RING_END',0,None,ip)
-		print 'finish to send keys'
+		print('finish to send keys')
