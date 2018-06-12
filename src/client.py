@@ -2,7 +2,7 @@ from state import *
 from global_data import state
 import messages
 from messages import Message
-import time
+import time, os
 
 def find_master():
 	print("Looking for the Master on the network...")
@@ -12,7 +12,11 @@ def find_master():
 		print("in findMaster. status is: "+ str(state.status)+" counter is: "+ str(counter))
 		# ask if there is master on the network
 		messages.broadcast(messages.IS_THERE_MASTER,0,None)
-		time.sleep(0.5)  # wait to master response (need to see how long is master initialization)
+		# wait to master response (need to see how long is master initialization)
+		if os.name == "nt": # for Windows PC
+			time.sleep(10)
+		elif os.name == "posix": # for Raspberry Pi
+			time.sleep(0.5)	  
 		
 		if(canIBeMaster):
 			counter -=1

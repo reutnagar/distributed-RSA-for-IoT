@@ -28,8 +28,8 @@ if os.name != "nt":
 
 if os.name == "nt": # for Windows PC
     my_ip = socket.gethostbyname(socket.gethostname())
-elif os.name == "posix": # for Ubuntu
-	my_ip = get_interface_ip("eth0")
+elif os.name == "posix": # for Raspberry Pi
+	my_ip = get_interface_ip("wlan0") # or "eth0" if using Ethernet
 else: # for Arduino
     my_ip = get_interface_ip("apcli0")
                
@@ -160,17 +160,17 @@ def _send_block(s, data, ip):
 def get_msg(s):
 	header, ip = _get_block(s, 4)
 	count = struct.unpack('>i', header)[0]
-	print("in get_msg. count is: "+ str(count))
+	#print("in get_msg. count is: "+ str(count))
 	return _get_block(s, count)
 
 def send_msg(s, data, ip):
 	header = struct.pack('>i', len(data))
-	print("in send_msg. count is: "+ str(len(data)))
+	#print("in send_msg. count is: "+ str(len(data)))
 	_send_block(s, header, ip)
 	_send_block(s, data, ip)
 
 def broadcast(type, dataID, data): #send broadcast message
-	print("Broadcast massage: "+ str(type))
+	#print("Broadcast massage: "+ str(type))
 	send_single_msg(type, dataID, data, '<broadcast>')
 
 def send_single_msg(type, dataID, data,ip):
