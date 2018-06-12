@@ -1,6 +1,7 @@
 import struct, threading, pickle, socket, time, os
 from state import *
 from global_data import state
+from master import send_key_to_client
 
 IS_THERE_MASTER = "IS_THERE_MASTER"
 I_AM_MASTER = "I_AM_MASTER"
@@ -68,8 +69,6 @@ def process_message(message, ip):
 	if message.type == IS_THERE_MASTER:
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
 			send_single_msg(I_AM_MASTER,0,None, ip)
-			#state.toSendKeys.append(ip) # TODO: if MASTER_DONE- send now
-			#print state.toSendKeys
 			print("Sent message I_AM_MASTER to IP: "+ str(ip))
 	elif message.type == I_AM_MASTER:
 		if state.status == NODE_INIT:
@@ -82,12 +81,11 @@ def process_message(message, ip):
 		else:
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
 	elif message.type == CLIENT_PUBLIC_KEY: 
-		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			# ips = [i[0] for i in state.neighbors]
-			# if ip not in ips:
-				# state.neighbors.append((ip,-1))
-			state.toSendKeys.append((ip,-1)) # TODO: if MASTER_DONE- send now
+		if state.status == MASTER_INIT:
+			state.toSendKeys.append((ip,-1))
 			print(state.toSendKeys)
+		elif state.status == MASTER_DONE:
+			send_key_to_client(ip)
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
 			print("Receive key, index: "+str(message.dataID))
@@ -104,6 +102,8 @@ def process_message(message, ip):
 			print("Add neighbor ip: "+str(ip))
 			state.neighbors.append((ip,-1))
 			print("the state.neighbors: "+str(state.neighbors))
+		if(state.status == CLIENT_DONE or state.status == MASTER_DONE):
+			send_single_msg(CLIENT_START_SESSION,0,[x[0] for x in state.keys],ip)
 	elif message.type == CLIENT_START_SESSION:
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			data_id = -1
@@ -119,8 +119,8 @@ def process_message(message, ip):
 					state.neighbors[index] = tuple(list_neighbor)
 					print('neighbors: '+str(state.neighbors))
 				data_id = common_keys[0]
-			#messages.send_single_msg(CLIENT_COMMON_INDEX,-1,None,ip)
-			broadcast(CLIENT_COMMON_INDEX,data_id,None)
+			send_single_msg(CLIENT_COMMON_INDEX,data_id,None,ip)
+			#broadcast(CLIENT_COMMON_INDEX,data_id,None)
 	elif message.type == CLIENT_COMMON_INDEX:
 		print('got CLIENT_COMMON_INDEX msg, the common_key is: '+str(message.dataID))
 		for index, neighbor in enumerate(state.neighbors):

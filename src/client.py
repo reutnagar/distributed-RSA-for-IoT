@@ -13,11 +13,7 @@ def find_master():
 		# ask if there is master on the network
 		messages.broadcast(messages.IS_THERE_MASTER,0,None)
 		# wait to master response (need to see how long is master initialization)
-		if os.name == "nt": # for Windows PC
-			time.sleep(10)
-		elif os.name == "posix": # for Raspberry Pi
-			time.sleep(0.5)	  
-		
+		time.sleep(15)
 		if(canIBeMaster):
 			counter -=1
 			if(counter == 0 and state.status != MASTER_FOUND): # after 2 tries to find the master, set myself as Master

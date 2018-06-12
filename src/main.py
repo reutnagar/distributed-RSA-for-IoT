@@ -29,10 +29,9 @@ if(state.IAmMaster): # perform Master logic
 	#state.keys = [(1,'frergef'),(55,'regfghg'),(34,'kkkkk')] #only for testing!!
 	print("my keys: "+str(state.keys))
 	# send the sub-pool keys
-	while(state.toSendKeys == []):
-		pass
-	print("to_send_keys is not empty, there is an ip: " + str(state.toSendKeys))
-	master.send_keys(state)
+	while(state.toSendKeys != []):
+		master.send_keys()
+	print("Finished sending the keys to all registered clients!")	
 	state.status = MASTER_DONE
 	
 	
@@ -55,7 +54,7 @@ else: # client logic
 	state.status = CLIENT_DONE
 	print('end client, now')
 	#messages.send_single_msg(messages.CLIENT_START_SESSION,0,index2,ip1)
-	messages.broadcast(messages.CLIENT_START_SESSION,0,[x[0] for x in state.keys])
+	#messages.broadcast(messages.CLIENT_START_SESSION,0,[x[0] for x in state.keys])
 	print('send list of indexes: '+str(state.keys))
 
 # Secured network has been established, can continue other work...

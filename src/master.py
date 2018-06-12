@@ -110,16 +110,18 @@ def generate_sub_keys(key_pool, k):
 # #			print(str(i)+ ": "+ key)
 # #			messages.send_data(key, addrs)
 	
-def send_keys(state):
+def send_keys():
 	print('in send_keys')
-	for index, client in enumerate(state.toSendKeys): # send the key to nodes that already sent their public key
-		sent_keys = 0
+	current_clients = state.toSendKeys
+	state.toSendKeys = [] # reset the list of client that are waiting to receive the keys. this list may be changed from the async thread
+	for index, client in enumerate(current_clients): # send the key to nodes that already sent their public key
 		ip = client[index]
-		while(sent_keys < state.subKeysSize):
-			key_index = int(math.floor(random.random() * len(state.pool_keys)))
-			#cipher = encrypt(public, state.keyPool[i])
-			cipher = state.pool_keys[key_index]
-			messages.send_single_msg('CLIENT_RING_KEYS', key_index, cipher,ip)
-			sent_keys+=1
-		messages.send_single_msg('CLIENT_RING_END',0,None,ip)
-		print('finish to send keys')
+		send_key_to_client(ip)
+
+def send_key_to_client(ip):
+	for i in range(state.subKeysSize):
+		key_index = int(math.floor(random.random() * len(state.pool_keys)))
+		#cipher = encrypt(public, state.keyPool[i])
+		cipher = state.pool_keys[key_index]
+		messages.send_single_msg('CLIENT_RING_KEYS', key_index, cipher,ip)
+	messages.send_single_msg('CLIENT_RING_END',0,None,ip)
