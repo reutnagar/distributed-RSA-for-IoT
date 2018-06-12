@@ -71,22 +71,25 @@ from Crypto.Util import Counter
 import Crypto.Cipher.AES
 import Crypto.Util.Counter
 
-def get_iv():
-	return os.urandom(16)
 
-iv = get_iv()
+def add_padding(s):
+    res = s + ''.join([str(len(s)%16) for i in range(16 - len(s)%16)])
+    print("add_padding: "+res)
+    return res
+    #return s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
 
-def pad(s):
-    return s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
-    #return s.zfill(16)
+def remove_padding(s):
+    leng = int(s[-1])
+    res = s[:len(s)- (16-leng)]
+    print("remove_padding: "+res)
+    return res
 
 def int_of_string(s):
-    return int(binascii.hexlify(iv), 16)
+    return int(binascii.hexlify(s), 16)
 	
 def encrypt_message(key, plaintext):
-    #iv = os.urandom(16)
-    #iv = get_iv()
-    plaintext = pad(plaintext)
+    iv = os.urandom(16)
+    plaintext = add_padding(plaintext)
     ctr = Counter.new(128, initial_value=int_of_string(iv))
     #ctr = Crypto.Util.Counter.new(128, initial_value=long(iv.encode("hex"), 16))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)
@@ -96,5 +99,5 @@ def decrypt_message(key, ciphertext, iv):
     ctr = Counter.new(128, initial_value=int_of_string(iv))
     #ctr = Crypto.Util.Counter.new(128, initial_value=long(iv.encode("hex"), 16))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)
-    return aes.decrypt(ciphertext)
+    return remove_padding(aes.decrypt(ciphertext))
 

@@ -25,7 +25,7 @@ KEY_SIZE = 16
 key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
 print("AES key: "+ key)
 
-msg = "it's a message to check the AES"
+msg = "it's a message to check the AES!gkldhwsf"
 iv, cipher = crypt.encrypt_message(key, msg)
 print("cipher: "+ str(cipher))
 
