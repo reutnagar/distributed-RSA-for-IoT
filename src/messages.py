@@ -29,7 +29,7 @@ if os.name != "nt":
 if os.name == "nt": # for Windows PC
     my_ip = socket.gethostbyname(socket.gethostname())
 elif os.name == "posix": # for Ubuntu
-	my_ip = get_interface_ip("ens33")
+	my_ip = get_interface_ip("eth0")
 else: # for Arduino
     my_ip = get_interface_ip("apcli0")
                
