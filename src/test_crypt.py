@@ -26,10 +26,10 @@ key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in ran
 print("AES key: "+ key)
 
 msg = "it's a message to check the AES"
-cipher = crypt.encrypt_message(key, msg)
+iv, cipher = crypt.encrypt_message(key, msg)
 print("cipher: "+ str(cipher))
 
-message_decrypted = crypt.decrypt_message(key, cipher, crypt.get_iv())
+message_decrypted = crypt.decrypt_message(key, cipher, iv)#crypt.get_iv())
 print("message_decrypted: " + str(message_decrypted))
 
 if(message_decrypted != msg):

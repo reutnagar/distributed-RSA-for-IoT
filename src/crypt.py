@@ -68,6 +68,8 @@ import binascii
 import os
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
+import Crypto.Cipher.AES
+import Crypto.Util.Counter
 
 def get_iv():
 	return os.urandom(16)
@@ -84,13 +86,15 @@ def int_of_string(s):
 def encrypt_message(key, plaintext):
     #iv = os.urandom(16)
     #iv = get_iv()
-    ctr = Counter.new(256, initial_value=int_of_string(iv))
-    #ctr = pad(ctr)
+    plaintext = pad(plaintext)
+    ctr = Counter.new(128, initial_value=int_of_string(iv))
+    #ctr = Crypto.Util.Counter.new(128, initial_value=long(iv.encode("hex"), 16))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)
     return iv , aes.encrypt(plaintext)
 	
 def decrypt_message(key, ciphertext, iv):
-    ctr = Counter.new(256, initial_value=int_of_string(iv))
+    ctr = Counter.new(128, initial_value=int_of_string(iv))
+    #ctr = Crypto.Util.Counter.new(128, initial_value=long(iv.encode("hex"), 16))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)
     return aes.decrypt(ciphertext)
 
