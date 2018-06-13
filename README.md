@@ -1,5 +1,5 @@
 # Probability Based Keys Sharing for IOT
-[![Build Status](https://travis-ci.org/jce-il/project-template.svg?branch=master)](https://travis-ci.org/reutnagar/distributed-RSA-for-IoT)
+[![Build Status](https://travis-ci.org/reutnagar/distributed-RSA-for-IoT.svg?branch=master)](https://travis-ci.org/reutnagar/distributed-RSA-for-IoT)
 [![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/ellerbrock/open-source-badge/)
 [![Code Climate](https://codeclimate.com/github/reutnagar/distributed-RSA-for-IoT.svg)](https://codeclimate.com/github/reutnagar/distributed-RSA-for-IoT) 
 [![Current Version](https://img.shields.io/github/release/reutnagar/distributed-RSA-for-IoT.svg?style=flat)](https://github.com/reutnagar/distributed-RSA-for-IoT/releases/)
