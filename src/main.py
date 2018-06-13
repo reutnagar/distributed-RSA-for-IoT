@@ -1,6 +1,6 @@
 from state import *
 from global_data import *
-import messages, client
+import messages, client, crypt
 
 print("**Node startup**")
 
@@ -37,11 +37,10 @@ if(state.IAmMaster): # perform Master logic
 	
 else: # client logic
 	state.status = CLIENT_INIT
-	# send public key to master
-	#messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None, state.masterIP)
-	messages.broadcast('CLIENT_PUBLIC_KEY',0,None)
-	#messages.send_single_msg('CLIENT_PUBLIC_KEY',0,None,state.masterIP)
-	print('send msg CLIENT_PUBLIC_KEY to: '+str(state.masterIP)+' now its broadcast')
+	# send client public key to master
+	state.RSAPublic, state.RSAPrivate = crypt.generate_asym_key()
+	messages.send_single_msg(state.masterIP, 'CLIENT_PUBLIC_KEY', 2048, state.RSAPublic)
+	print('Sent public key to Master : ' + str(state.masterIP))
 
 	# wait until key are sent from Master
 	print("Waiting to receive the keys from the Master...")
@@ -53,8 +52,6 @@ else: # client logic
 	client.publishMe()
 	state.status = CLIENT_DONE
 	print('end client, now')
-	#messages.send_single_msg(messages.CLIENT_START_SESSION,0,index2,ip1)
-	#messages.broadcast(messages.CLIENT_START_SESSION,0,[x[0] for x in state.keys])
 	print('send list of indexes: '+str(state.keys))
 
 # Secured network has been established, can continue other work...

@@ -1,7 +1,8 @@
 import struct, threading, pickle, socket, time, os
 from state import *
 from global_data import state
-from master import send_key_to_client
+from master import send_keys_to_client
+import crypt
 
 IS_THERE_MASTER = "IS_THERE_MASTER"
 I_AM_MASTER = "I_AM_MASTER"
@@ -68,7 +69,7 @@ def process_message(message, ip):
 	print("in process_message. msg: "+ str(message.type))
 	if message.type == IS_THERE_MASTER:
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			send_single_msg(I_AM_MASTER,0,None, ip)
+			send_single_msg(ip,I_AM_MASTER)
 			print("Sent message I_AM_MASTER to IP: "+ str(ip))
 	elif message.type == I_AM_MASTER:
 		if state.status == NODE_INIT:
@@ -80,16 +81,18 @@ def process_message(message, ip):
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
 		else:
 			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
-	elif message.type == CLIENT_PUBLIC_KEY: 
+	elif message.type == CLIENT_PUBLIC_KEY:
 		if state.status == MASTER_INIT:
-			state.toSendKeys.append((ip,-1))
+			state.toSendKeys.append((ip,message.data)) # save the client ip and public key for later use
 			print(state.toSendKeys)
 		elif state.status == MASTER_DONE:
-			send_key_to_client(ip)
+			send_keys_to_client(ip, message.data) # encrypt the sub-pool with the client's public key
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
 			print("Receive key, index: "+str(message.dataID))
-			state.keys.append((message.dataID,message.data))
+			key = crypt.decrypt_asym(str(state.RSAPrivate), message.data)
+			print("key decrypted is: "+ str(key))
+			state.keys.append((message.dataID,key))
 			state.status = CLIENT_GETTING_KEYS
 	elif message.type == CLIENT_RING_END:
 		if state.status == CLIENT_GETTING_KEYS:
@@ -103,7 +106,7 @@ def process_message(message, ip):
 			state.neighbors.append((ip,-1))
 			print("the state.neighbors: "+str(state.neighbors))
 		if(state.status == CLIENT_DONE or state.status == MASTER_DONE):
-			send_single_msg(CLIENT_START_SESSION,0,[x[0] for x in state.keys],ip)
+			send_single_msg(ip, CLIENT_START_SESSION,0,[x[0] for x in state.keys])
 	elif message.type == CLIENT_START_SESSION:
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			data_id = -1
@@ -119,8 +122,7 @@ def process_message(message, ip):
 					state.neighbors[index] = tuple(list_neighbor)
 					print('neighbors: '+str(state.neighbors))
 				data_id = common_keys[0]
-			send_single_msg(CLIENT_COMMON_INDEX,data_id,None,ip)
-			#broadcast(CLIENT_COMMON_INDEX,data_id,None)
+			send_single_msg(ip, CLIENT_COMMON_INDEX,data_id)
 	elif message.type == CLIENT_COMMON_INDEX:
 		print('got CLIENT_COMMON_INDEX msg, the common_key is: '+str(message.dataID))
 		for index, neighbor in enumerate(state.neighbors):
@@ -131,7 +133,7 @@ def process_message(message, ip):
 			state.neighbors[index] = tuple(list_neighbor)
 			print('neighbors: '+str(state.neighbors))
 	else:
-		print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
+		print("ERROR! got message: "+ str(message.type)+ " when status is: "+ str(state.status))
 
 
 #############################
@@ -154,26 +156,23 @@ def _get_block(s, count):
 	return buf, address
 
 def _send_block(s, data, ip):
-    while data:
-        data = data[s.sendto(data, (ip,PORT)):]
+	while data:
+		data = data[s.sendto(data, (ip,PORT)):]
 
 def get_msg(s):
 	header, ip = _get_block(s, 4)
 	count = struct.unpack('>i', header)[0]
-	#print("in get_msg. count is: "+ str(count))
 	return _get_block(s, count)
 
 def send_msg(s, data, ip):
 	header = struct.pack('>i', len(data))
-	#print("in send_msg. count is: "+ str(len(data)))
 	_send_block(s, header, ip)
 	_send_block(s, data, ip)
 
-def broadcast(type, dataID, data): #send broadcast message
-	#print("Broadcast massage: "+ str(type))
-	send_single_msg(type, dataID, data, '<broadcast>')
+def broadcast(type, dataID=0, data=None): #send broadcast message
+	send_single_msg('<broadcast>', type, dataID, data)
 
-def send_single_msg(type, dataID, data,ip):
+def send_single_msg(ip, type, dataID=0, data=None):
 	print("in send_single_msg. sending message " +str(type)+" to: "+ str(ip))
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	if ip == '<broadcast>':

@@ -3,7 +3,7 @@ from global_data import state
 from scipy.optimize import fsolve
 from math import log
 import random, math, string, time
-import messages
+import messages, crypt
 
 KEY_SIZE = 16
 # memory size
@@ -96,32 +96,21 @@ def generate_sub_keys(key_pool, k):
         sub_keys[id] = key_pool[id]
     return sub_keys
 	
-# def send_keys():
-# #	while(len(state.toSendKeys) == 0):
-# #		pass
-# #	time.sleep(20)
-	# print("Sending the keys to the Clients...")
-# #	for addrs in state.toSendKeys:
-# #		print("Sending to: "+ str(addrs))
-# #		messages.send_single_msg(messages.CLIENT_KEYS, addrs)
-# #		messages.send_header(2*KEY_SIZE, addrs)
-# #		for i in xrange(2):
-# #			key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
-# #			print(str(i)+ ": "+ key)
-# #			messages.send_data(key, addrs)
-	
 def send_keys():
 	print('in send_keys')
 	current_clients = state.toSendKeys
 	state.toSendKeys = [] # reset the list of client that are waiting to receive the keys. this list may be changed from the async thread
 	for index, client in enumerate(current_clients): # send the key to nodes that already sent their public key
 		ip = client[index]
-		send_key_to_client(ip)
+		send_keys_to_client(ip, None)
 
-def send_key_to_client(ip):
+def send_keys_to_client(ip, public=None):
 	for i in range(state.subKeysSize):
 		key_index = int(math.floor(random.random() * len(state.pool_keys)))
-		#cipher = encrypt(public, state.keyPool[i])
-		cipher = state.pool_keys[key_index]
-		messages.send_single_msg('CLIENT_RING_KEYS', key_index, cipher,ip)
-	messages.send_single_msg('CLIENT_RING_END',0,None,ip)
+		keyData = state.pool_keys[key_index]
+		if public!= None:
+			keyData = crypt.encrypt_asym(public, keyData)
+		messages.send_single_msg(ip, 'CLIENT_RING_KEYS', key_index, keyData)
+	messages.send_single_msg(ip, 'CLIENT_RING_END')
+	
+	

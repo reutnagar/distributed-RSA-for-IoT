@@ -16,6 +16,9 @@ class State(object):
 	status = INIT # hold the current state/ status of the node in the network
 	IAmMaster = False # whether this node is the Master
 	
+	RSAPublic = None
+	RSAPrivate = None
+	
 	neighbors = []  # list of known neighbors on the network
 	keys = []  # list of my sub pool of keys, with their indexes
 	masterIP = "" # will hold the IP of the Master on the network
