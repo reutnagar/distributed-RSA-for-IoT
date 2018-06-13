@@ -1,4 +1,5 @@
 # Probability Based Keys Sharing for IOT
+[![Code Climate](https://codeclimate.com/github/reutnagar/distributed-RSA-for-IoT.svg)](https://codeclimate.com/github/reutnagar/distributed-RSA-for-IoT)
 ## The Goal
 To provide confidentiality of the data that is exchanged within an IoT network.
 ## Assumptions
