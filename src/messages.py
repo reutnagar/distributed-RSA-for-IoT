@@ -90,9 +90,9 @@ def process_message(message, ip):
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
 			print("Receive key, index: "+str(message.dataID))
-			key = crypt.decrypt_asym(str(state.RSAPrivate), message.data)
-			print("key decrypted is: "+ str(key))
-			state.keys.append((message.dataID,key))
+			#key = crypt.decrypt_asym(str(state.RSAPrivate), message.data)
+			#print("key decrypted is: "+ str(key))
+			state.keys.append((message.dataID,message.data))
 			state.status = CLIENT_GETTING_KEYS
 	elif message.type == CLIENT_RING_END:
 		if state.status == CLIENT_GETTING_KEYS:

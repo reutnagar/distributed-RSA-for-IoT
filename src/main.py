@@ -48,6 +48,8 @@ else: # client logic
 		pass
 	print('after recieving keys: ')
 	print(state.keys)
+	# decrypt all the keys
+	state.keys = [(index, crypt.decrypt_asym(state.RSAPrivate, key)) for (index, key) in state.keys]
 	# publish my IP in the network
 	client.publishMe()
 	state.status = CLIENT_DONE
