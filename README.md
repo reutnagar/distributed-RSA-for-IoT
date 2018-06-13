@@ -1,5 +1,10 @@
 # Probability Based Keys Sharing for IOT
+[![Build Status](https://travis-ci.org/jce-il/project-template.svg?branch=master)](https://travis-ci.org/jce-il/plastic-tableware)
+[![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/ellerbrock/open-source-badge/)
 [![Code Climate](https://codeclimate.com/github/reutnagar/distributed-RSA-for-IoT.svg)](https://codeclimate.com/github/reutnagar/distributed-RSA-for-IoT)
+[![Current Version](https://img.shields.io/github/release/reutnagar/plastic-tableware.svg?style=flat)](https://github.com/reutnagar/plastic-tableware/releases)
+ [Project Management Board](https://trello.com/b/DkjV5sEx/a)
+
 ## The Goal
 To provide confidentiality of the data that is exchanged within an IoT network.
 ## Assumptions
