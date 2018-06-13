@@ -1,1 +1,3 @@
-numpy, scipy, pycryptodome
+numpy
+scipy
+pycryptodome
