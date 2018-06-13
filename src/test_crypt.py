@@ -3,7 +3,7 @@ import crypt
 import random, string
 
 #RSA testing
-private, public = crypt.generate_asym_key()
+public, private = crypt.generate_asym_key()
 print("private key: " + str(private))
 print("public key: " + str(public))
 
@@ -18,14 +18,13 @@ if(message_decrypted != MESSAGE):
 	print("Test Failed! The decrypted message is different than the encrypted message!")
 else:
 	print("Test Passed!")
-	
 
 #AES testing
 KEY_SIZE = 16	
 key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
 print("AES key: "+ key)
 
-msg = "it's a message to check the AES!gkldhwsf"
+msg = "This is a very secret message from: 10.0.0.24"
 iv, cipher = crypt.encrypt_message(key, msg)
 print("cipher: "+ str(cipher))
 

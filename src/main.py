@@ -1,6 +1,7 @@
 from state import *
 from global_data import *
 import messages, client, crypt
+import time
 
 print("**Node startup**")
 
@@ -56,6 +57,16 @@ else: # client logic
 	print('end client, now')
 	print('send list of indexes: '+str(state.keys))
 
+# send few messages with the common index- if there is...
+while(True):
+	for neighbor, index in state.neighbors:
+		if index != -1:
+			time.sleep(50) # not to overload the network...
+			key = ''.join([key for (i, key) in state.keys if i == index]) # supposed to find only one key with the same index!
+			msg = "This is a very secret message from: "+ state.myIP
+			print("message sent is: " + str(msg))
+			iv, cipher = crypt.encrypt_message(key, msg)
+			messages.send_single_msg(neighbor, messages.MESSAGE_ENC_DATA, iv, cipher)
 # Secured network has been established, can continue other work...
 while(True):
 	pass

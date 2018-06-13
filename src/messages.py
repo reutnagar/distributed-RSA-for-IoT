@@ -12,6 +12,7 @@ CLIENT_RING_END = "CLIENT_RING_END"
 I_AM_ON_THE_NETWORK = "I_AM_ON_THE_NETWORK"
 CLIENT_START_SESSION = "CLIENT_START_SESSION"
 CLIENT_COMMON_INDEX  = "CLIENT_COMMON_INDEX"
+MESSAGE_ENC_DATA = "MESSAGE_ENC_DATA"
 PORT = 5001
 
 class Message(object):
@@ -35,7 +36,7 @@ elif os.name == "posix": # for Raspberry Pi
 else: # for Arduino
     my_ip = get_interface_ip("apcli0")
                
-
+state.myIP = my_ip
 print("My IP is: " + my_ip)
 
 #############################
@@ -66,7 +67,7 @@ def listen(socket):
 
 
 def process_message(message, ip):
-	print("in process_message. msg: "+ str(message.type))
+	#print("in process_message. msg: "+ str(message.type))
 	if message.type == IS_THERE_MASTER:
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
 			send_single_msg(ip,I_AM_MASTER)
@@ -80,7 +81,7 @@ def process_message(message, ip):
 		elif state.status == INIT:
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
 		else:
-			print("ERROR! got message: "+ str(message)+ "when status is: "+ str(state.status))
+			print("ERROR! got message: "+ str(message.type)+ "when status is: "+ str(state.status))
 	elif message.type == CLIENT_PUBLIC_KEY:
 		if state.status == MASTER_INIT:
 			state.toSendKeys.append((ip,message.data)) # save the client ip and public key for later use
@@ -89,9 +90,7 @@ def process_message(message, ip):
 			send_keys_to_client(ip, message.data) # encrypt the sub-pool with the client's public key
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
-			print("Receive key, index: "+str(message.dataID))
-			#key = crypt.decrypt_asym(str(state.RSAPrivate), message.data)
-			#print("key decrypted is: "+ str(key))
+			print("Receive key, index: " + str(message.dataID))
 			state.keys.append((message.dataID,message.data))
 			state.status = CLIENT_GETTING_KEYS
 	elif message.type == CLIENT_RING_END:
@@ -132,6 +131,12 @@ def process_message(message, ip):
 				list_neighbor[1] = message.dataID
 			state.neighbors[index] = tuple(list_neighbor)
 			print('neighbors: '+str(state.neighbors))
+	elif message.type == MESSAGE_ENC_DATA:
+		for neighbor, index in state.neighbors: # look for the sender ip in the neighbors list
+			if neighbor == ip: # neighbor is found
+				key = ''.join([key for (i, key) in state.keys if i == index]) # supposed to find only one key with the same index!
+				msg = crypt.decrypt_message(key, message.data, message.dataID)
+				print("Decrypted message from: "+ str(ip) + ". Message is: " + str(msg))
 	else:
 		print("ERROR! got message: "+ str(message.type)+ " when status is: "+ str(state.status))
 
@@ -173,7 +178,7 @@ def broadcast(type, dataID=0, data=None): #send broadcast message
 	send_single_msg('<broadcast>', type, dataID, data)
 
 def send_single_msg(ip, type, dataID=0, data=None):
-	print("in send_single_msg. sending message " +str(type)+" to: "+ str(ip))
+	print("Sending message " +str(type)+" to: "+ str(ip))
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	if ip == '<broadcast>':
 		s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

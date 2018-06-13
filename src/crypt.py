@@ -18,13 +18,9 @@ def encrypt_asym(pub_key, message):
 	return ciphertext
 	
 def decrypt_asym(priv_key, ciphertext):
-	print("in decrypt_asym #1")
 	key = RSA.import_key(priv_key)
-	print("in decrypt_asym #2")
 	cipher = PKCS1_v1_5.new(key)
-	print("in decrypt_asym #3")
 	message = cipher.decrypt(ciphertext, None)
-	print("in decrypt_asym #4")
 	return message
 
 
@@ -40,15 +36,15 @@ import Crypto.Util.Counter
 
 
 def add_padding(s):
-    res = s + ''.join([str(len(s)%16) for i in range(16 - len(s)%16)])
-    print("add_padding: "+res)
+    # The last byte of the message will have the last block original size, so recipient will be able to extract the message
+    # if last block is full- no padding needed, a full block will be added with the value of zeros.
+    res = s + ''.join([chr(len(s)%16) for i in range(16 - len(s)%16)])
     return res
-    #return s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
 
 def remove_padding(s):
-    leng = int(s[-1])
-    res = s[:len(s)- (16-leng)]
-    print("remove_padding: "+res)
+    # find the last block original size and remove the padding
+    lastBlocklen = ord(s[-1])
+    res = s[:len(s)- (16-lastBlocklen)]
     return res
 
 def int_of_string(s):
@@ -56,15 +52,15 @@ def int_of_string(s):
 	
 def encrypt_message(key, plaintext):
     iv = os.urandom(16)
+    # encryption is done only on block sizes of the message. therefore need to add padding
     plaintext = add_padding(plaintext)
     ctr = Counter.new(128, initial_value=int_of_string(iv))
-    #ctr = Crypto.Util.Counter.new(128, initial_value=long(iv.encode("hex"), 16))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)
     return iv , aes.encrypt(plaintext)
 	
 def decrypt_message(key, ciphertext, iv):
     ctr = Counter.new(128, initial_value=int_of_string(iv))
-    #ctr = Crypto.Util.Counter.new(128, initial_value=long(iv.encode("hex"), 16))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)
-    return remove_padding(aes.decrypt(ciphertext))
+    msg = remove_padding(aes.decrypt(ciphertext))
+    return msg
 

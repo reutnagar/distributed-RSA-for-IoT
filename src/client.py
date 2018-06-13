@@ -9,7 +9,7 @@ def find_master():
 	counter = 2
 	canIBeMaster = True # may be done with: calculateStrengh() function
 	while(state.status != MASTER_FOUND):
-		print("in findMaster. status is: "+ str(state.status)+" counter is: "+ str(counter))
+		print("Trying for the #" + str(3-counter) + " time...")
 		# ask if there is master on the network
 		messages.broadcast(messages.IS_THERE_MASTER)
 		# wait for master response (it takes a long time for the IoT to respond... ~10 seconds!)
@@ -23,5 +23,5 @@ def find_master():
 	return False
 
 def publishMe():
+	print("Publishing my IP on the network...")
 	messages.broadcast(messages.I_AM_ON_THE_NETWORK)
-	print("Publish my IP on the network...")
