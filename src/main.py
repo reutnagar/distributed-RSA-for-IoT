@@ -12,7 +12,8 @@ messages.async_listen_to_messages()
 
 state.status = NODE_INIT
 
-# ask "who is Master" in the network. return True if I am the Master, False otherwise
+# ask "who is Master" in the network. 
+# return True if I am the Master, False otherwise
 state.IAmMaster = client.find_master()
 print("in main. Master is found!")
 
