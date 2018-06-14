@@ -108,20 +108,19 @@ def process_message(message, ip):
 			send_single_msg(ip, CLIENT_START_SESSION,0,[x[0] for x in state.keys])
 	elif message.type == CLIENT_START_SESSION:
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
-			data_id = -1
-			print('message.data: '+str(message.data))
+			common_key = -1 
+			# Intersect my keys & the sender keys
 			common_keys = list(set(message.data).intersection([x[0] for x in state.keys]))
-			print('common keys: '+str(common_keys))
+			# If common key is found- update internal state
 			if common_keys: 
 				for index, neighbor in enumerate(state.neighbors):
 					list_neighbor = list(neighbor)
-					print("list_neighbor: "+str(list_neighbor)) 
 					if list_neighbor[0] == ip:
 						list_neighbor[1]= common_keys[0]
 					state.neighbors[index] = tuple(list_neighbor)
-					print('neighbors: '+str(state.neighbors))
-				data_id = common_keys[0]
-			send_single_msg(ip, CLIENT_COMMON_INDEX,data_id)
+				common_key = common_keys[0]
+			# Response with the common key index, or -1 if not found
+			send_single_msg(ip, CLIENT_COMMON_INDEX,common_key)
 	elif message.type == CLIENT_COMMON_INDEX:
 		print('got CLIENT_COMMON_INDEX msg, the common_key is: '+str(message.dataID))
 		for index, neighbor in enumerate(state.neighbors):
