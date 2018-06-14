@@ -104,13 +104,16 @@ def send_keys():
 		ip = client[index]
 		send_keys_to_client(ip, None)
 
-def send_keys_to_client(ip, public=None):
+def send_keys_to_client(ip, clientPublicKey):
 	for i in range(state.subKeysSize):
+		# Get random key from the pool
 		key_index = int(math.floor(random.random() * len(state.pool_keys)))
 		keyData = state.pool_keys[key_index]
-		if public!= None:
-			keyData = crypt.encrypt_asym(public, keyData)
+		# Encrypt the key with the client's public RSA key
+		keyData = crypt.encrypt_asym(clientPublicKey, keyData)
+		# Send to client
 		messages.send_single_msg(ip, 'CLIENT_RING_KEYS', key_index, keyData)
+	# Indicate the client that no more keys will be sent
 	messages.send_single_msg(ip, 'CLIENT_RING_END')
 	
 	
