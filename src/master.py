@@ -105,7 +105,8 @@ def send_keys():
 		send_keys_to_client(ip, None)
 
 def send_keys_to_client(ip, clientPublicKey):
-	for i in range(state.subKeysSize):
+	# Send sub-pool of size determined in calculate_sub_keys_size()
+	for i in range(state.subKeysSize): 
 		# Get random key from the pool
 		key_index = int(math.floor(random.random() * len(state.pool_keys)))
 		keyData = state.pool_keys[key_index]
