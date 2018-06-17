@@ -13,7 +13,7 @@ I_AM_ON_THE_NETWORK = "I_AM_ON_THE_NETWORK"
 CLIENT_START_SESSION = "CLIENT_START_SESSION"
 CLIENT_COMMON_INDEX  = "CLIENT_COMMON_INDEX"
 MESSAGE_ENC_DATA = "MESSAGE_ENC_DATA"
-PORT = 5001
+PORT = 5002
 
 # the messages have three fildes: 
 # 1. type = the header of the message
@@ -114,6 +114,10 @@ def process_message(message, ip):
 			#print("My indexes are: "+str(my_indexes))
 			send_single_msg(ip, CLIENT_START_SESSION,0,my_indexes)# send message to start talk
 	elif message.type == CLIENT_START_SESSION: # check if have a common key with the sender
+		ips = [i[0] for i in state.neighbors]
+		if ip not in ips:
+			print("Add neighbor ip: "+str(ip))
+			state.neighbors.append((ip,-1))
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			common_key = -1 
 			# Intersect my keys & the sender keys
