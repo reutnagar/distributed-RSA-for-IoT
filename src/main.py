@@ -30,7 +30,7 @@ if(state.IAmMaster): # perform Master logic
 	for index, key in enumerate(state.pool_keys):
 		state.keys.append((index,key))
 	#print("my keys: "+str(state.keys))
-	# send the sub-pool keys
+	# send the sub-pool keys to nodes that send their public key
 	while(state.toSendKeys != []):
 		master.send_keys()
 	state.status = MASTER_DONE
@@ -55,11 +55,11 @@ else: # perform client logic
 	client.publishMe()
 	state.status = CLIENT_DONE
 
-# Send messages using the common index- if there is...
+# Send messages using the common index - if there is...
 stop = False
 while(!stop):
 	for neighbor, index in state.neighbors:
-		if index != -1:
+		if index != -1: # if there is a common index
 			time.sleep(20) # not to overload the network... 
 			# Find the common index of me and the neighbor
 			key = ''.join([key for (i, key) in state.keys if i == index])
