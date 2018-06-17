@@ -30,7 +30,7 @@ if(state.IAmMaster): # perform Master logic
 	for index, key in enumerate(state.pool_keys):
 		state.keys.append((index,key))
 	#print("my keys: "+str(state.keys))
-	# send the sub-pool keys
+	# send the sub-pool keys to nodes that send their public key
 	while(state.toSendKeys != []):
 		master.send_keys()
 	state.status = MASTER_DONE
@@ -70,7 +70,6 @@ else: # perform client logic
 				print("The cipher is: "+ str(cipher))
 				messages.send_single_msg(neighbor, messages.MESSAGE_ENC_DATA, iv, cipher)
 				stop = True
-
 
 # Secured network has been established, can continue other work...
 while(True):

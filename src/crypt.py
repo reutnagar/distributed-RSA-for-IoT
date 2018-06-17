@@ -49,7 +49,8 @@ def remove_padding(s):
 
 def int_of_string(s):
     return int(binascii.hexlify(s), 16)
-	
+
+# encryption
 def encrypt_message(key, plaintext):
     iv = os.urandom(16)
     # encryption is done only on block sizes of the message. therefore need to add padding
@@ -57,7 +58,8 @@ def encrypt_message(key, plaintext):
     ctr = Counter.new(128, initial_value=int_of_string(iv))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)
     return iv , aes.encrypt(plaintext)
-	
+
+# decryption
 def decrypt_message(key, ciphertext, iv):
     ctr = Counter.new(128, initial_value=int_of_string(iv))
     aes = AES.new(key, AES.MODE_CTR, counter=ctr)

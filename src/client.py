@@ -6,7 +6,7 @@ import time, os
 
 def find_master():
 	print("Looking for the Master on the network...")
-	counter = 2
+	counter = 2 # two tries for looking after master, if there is a stack in the network. if can't be a master - asked until found
 	canIBeMaster = True # may be done with: calculateStrengh() function
 	while(state.status != MASTER_FOUND):
 		print("Trying for the #" + str(3-counter) + " time...")

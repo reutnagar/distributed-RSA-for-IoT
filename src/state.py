@@ -2,9 +2,11 @@
 INIT = 0
 NODE_INIT = 1
 MASTER_FOUND = 2
+
 #only for Master
 MASTER_INIT = 3
 MASTER_DONE = 4
+
 #only for Client
 CLIENT_INIT = 5
 CLIENT_GETTING_KEYS = 6
