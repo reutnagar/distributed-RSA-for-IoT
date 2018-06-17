@@ -13,6 +13,7 @@ M = 512
 # The number of the nodes in network.
 n = 10000
 
+# the sub pool size is limited by the memory
 def calculate_sub_keys_size():
 	sub_pool = M/(2*KEY_SIZE)
 	return sub_pool
@@ -20,25 +21,18 @@ def calculate_sub_keys_size():
 # size of sub keys 
 k = calculate_sub_keys_size()
 
-def nodesInNetwork():
-	return n
-
 # n', The neighborhood size
 nn = 25
 
-# def a():
-	# Pc = math.e**(math.e**-c)
-	# return Pc
-
-# a real constant, to calculate p
+# a real constant, to calculate p is the probability that the two nodes are connected directly
 c = 11.5
 # calculate p, according to the variables. p is 
 p = math.log(n, math.e)/n + c/n
 
-# d is 
+# d is the expected value of the node
 d = p * (n - 1)
 
-# p'
+# p' is the probability that two nodedes have a common-key
 pp = d / (nn - 1)
 
 # x0, the first x, in order to begins the iterations of calculating p'
@@ -48,7 +42,7 @@ gP = -k**2/math.log(1-pp)
 def func(P):
 	return log(1-pp)-(2*P-2*k+1)*log(1-k/P)+(P-2*k+1/2)*log(1-2*k/P) 
 	
-# function to calculate the size of the pool the masrer have to p
+# function to calculate the size of the pool the master have to generate
 def calculate_pool_size():
 	P = int(fsolve(func, gP)[0])
 	return P
@@ -56,21 +50,21 @@ def calculate_pool_size():
 # the size of the pool
 P = calculate_pool_size()
 
+#for the pool_testing
 def get_pp():
 	return pp
-	
 def get_P():
 	return P
-
 def get_nn():
 	return nn
-
 def get_n():
 	return n
-	
 def get_k():
 	return k
+def nodesInNetwork():
+	return n
 	
+# function to generate the pool
 def generate_key_pool():
 	key_pool = []  # list of keys
 	for i in xrange(P):
@@ -79,16 +73,18 @@ def generate_key_pool():
 		key_pool.append(key)  # add the key to the pool. the key index is its index on this list
 	print("Generated the key pool.")
 	return key_pool
-	
-# def generate_sub_keys(key_pool, k):
-    # sub_keys = {}
-    # for i in xrange(k):
-        # id = -1
-        # while id < 0 or id in sub_keys:
-            # id = int(math.floor(random.random() * len(key_pool)))
-        # sub_keys[id] = key_pool[id]
-    # return sub_keys
-	
+
+# needed to the pool_test
+def generate_sub_keys(key_pool, k):
+    sub_keys = {}
+    for i in xrange(k):
+        id = -1
+        while id < 0 or id in sub_keys:
+            id = int(math.floor(random.random() * len(key_pool)))
+        sub_keys[id] = key_pool[id]
+    return sub_keys
+
+# function that sendings keys to clients that waiting for them
 def send_keys():
 	current_clients = state.toSendKeys
 	state.toSendKeys = [] # reset the list of client that are waiting to receive the keys. this list may be changed from the async thread
@@ -96,6 +92,7 @@ def send_keys():
 		ip = client[index]
 		send_keys_to_client(ip, None)
 
+# function that sendings keys to clients that waiting for them, encypted with thier public key
 def send_keys_to_client(ip, clientPublicKey):
 	print("Sending keys to: " + str(ip) + "...")
 	# Send sub-pool of size determined in calculate_sub_keys_size()
