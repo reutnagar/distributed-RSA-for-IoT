@@ -15,6 +15,10 @@ CLIENT_COMMON_INDEX  = "CLIENT_COMMON_INDEX"
 MESSAGE_ENC_DATA = "MESSAGE_ENC_DATA"
 PORT = 5001
 
+# the messages have three fildes: 
+# 1. type = the header of the message
+# 2. dataID = an aditional data, like the index of key in CLIENT_RING_KEYS message , when no nedded is 0
+# 3. data = the data itself. when the message don't have data, it'w None 
 class Message(object):
 	def __init__(self, type, dataID, data):
 		self.type = type
@@ -29,6 +33,7 @@ if os.name != "nt":
         return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s',
                                 ifname[:15]))[20:24])
 
+# Our code supports several operating systems
 if os.name == "nt": # for Windows PC
     my_ip = socket.gethostbyname(socket.gethostname())
 elif os.name == "posix": # for Raspberry Pi
@@ -42,6 +47,7 @@ print("My IP is: " + my_ip)
 #############################
 #### Async thread  ##########
 #############################
+# async thread for listening, killed where no needed
 def async_listen_to_messages():
 	print("Creating New thread..")
 	c = threading.Thread(target=async_listen)
@@ -56,54 +62,55 @@ def async_listen():
 		msg, ip = listen(s)  # block until message accepted
 		process_message(msg, ip)
 
+# listen for message, if it's me - break
 def listen(socket):
 	while True:
 		bits , address = get_msg(socket)
 		if my_ip != address[0]:
 			break
-	msg = pickle.loads(bits)
+	msg = pickle.loads(bits) # Returns the message to a format of message
 	#print('Got message: %s. from : %s' % (msg.type, address[0]))
 	return msg, address[0]
 
-
+# function to process the message, in order to know what to do with
 def process_message(message, ip):
 	print("Got message from " + str(ip) + ". Type: " + str(message.type) + ", dataID: " + str(message.dataID))
 	if message.type == IS_THERE_MASTER:
-		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
-			send_single_msg(ip,I_AM_MASTER)
+		if (state.status == MASTER_INIT or state.status == MASTER_DONE): # if I'm master
+			send_single_msg(ip,I_AM_MASTER) 
 			print("Sent message I_AM_MASTER to IP: "+ str(ip))
-	elif message.type == I_AM_MASTER:
+	elif message.type == I_AM_MASTER: # if get I_AM_MASTER msg, set the sender IP to be a master
 		if state.status == NODE_INIT:
 			state.status = MASTER_FOUND
 			state.masterIP = ip
 			state.neighbors.append((ip,-1))
 		elif state.status == INIT:
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
-	elif message.type == CLIENT_PUBLIC_KEY:
+	elif message.type == CLIENT_PUBLIC_KEY: # only the master can get this msg
 		if state.status == MASTER_INIT:
 			state.toSendKeys.append((ip,message.data)) # save the client ip and public key for later use
 		elif state.status == MASTER_DONE:
 			send_keys_to_client(ip, message.data) # encrypt the sub-pool with the client's public key
-	elif message.type == CLIENT_RING_KEYS:
+	elif message.type == CLIENT_RING_KEYS: # msg with key, ecrypted with his public key
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
 			print("Receive key, index: " + str(message.dataID))
 			state.keys.append((message.dataID,message.data))
 			state.status = CLIENT_GETTING_KEYS
-	elif message.type == CLIENT_RING_END:
+	elif message.type == CLIENT_RING_END: # msg that say, finished to send keys
 		if state.status == CLIENT_GETTING_KEYS:
 			state.status = CLIENT_GOT_KEYS
-	elif message.type == I_AM_ON_THE_NETWORK:
+	elif message.type == I_AM_ON_THE_NETWORK: # add the node to my neighbors
 		ips = [i[0] for i in state.neighbors]
 		if ip not in ips:
 			print("Add neighbor ip: "+str(ip))
 			state.neighbors.append((ip,-1))
 			#print("the state.neighbors: "+str(state.neighbors))
-		if(state.status == CLIENT_DONE or state.status == MASTER_DONE):
+		if(state.status == CLIENT_DONE or state.status == MASTER_DONE): # in this states can send the indexes to start talk
 			my_indexes = [x[0] for x in state.keys]
 			print("Sending my keys indexes to: "+str(ip))
 			print("My indexes are: "+str(my_indexes))
-			send_single_msg(ip, CLIENT_START_SESSION,0,my_indexes)
-	elif message.type == CLIENT_START_SESSION:
+			send_single_msg(ip, CLIENT_START_SESSION,0,my_indexes) # send message to start talk
+	elif message.type == CLIENT_START_SESSION: # check if have a common key with the sender
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			common_key = -1 
 			# Intersect my keys & the sender keys
@@ -119,7 +126,7 @@ def process_message(message, ip):
 			# Response with the common key index, or -1 if not found
 			send_single_msg(ip, CLIENT_COMMON_INDEX,common_key)
 			print("Common key with "+ str(ip) +"is: "+str(common_key))
-	elif message.type == CLIENT_COMMON_INDEX:
+	elif message.type == CLIENT_COMMON_INDEX: # recieve the common index,and save it
 		print("Common key with "+ str(ip) +"is: "+str(message.dataID))
 		for index, neighbor in enumerate(state.neighbors):
 			list_neighbor = list(neighbor)
@@ -128,13 +135,13 @@ def process_message(message, ip):
 				list_neighbor[1] = message.dataID
 			state.neighbors[index] = tuple(list_neighbor)
 			#print('neighbors: '+str(state.neighbors))
-	elif message.type == MESSAGE_ENC_DATA:
+	elif message.type == MESSAGE_ENC_DATA: # recieving data encypted with the common key
 		for neighbor, index in state.neighbors: # look for the sender ip in the neighbors list
 			if neighbor == ip: # neighbor is found
 				key = ''.join([key for (i, key) in state.keys if i == index]) # supposed to find only one key with the same index!
 				msg = crypt.decrypt_message(key, message.data, message.dataID)
 				print("Decrypted message from: "+ str(ip) + ". Message is: " + str(msg))
-	else:
+	else: #error
 		print("Got message: "+ str(message.type)+ " when status is: "+ str(state.status))
 
 
@@ -142,6 +149,7 @@ def process_message(message, ip):
 #### External API ###########
 #############################
 
+# get block of msg
 def _get_block(s, count):
 	if count <= 0:
 		return ''
@@ -157,15 +165,18 @@ def _get_block(s, count):
 		buf += buf2
 	return buf, address
 
+# send block of msg 
 def _send_block(s, data, ip):
 	while data:
 		data = data[s.sendto(data, (ip,PORT)):]
 
+# get all the message
 def get_msg(s):
 	header, ip = _get_block(s, 4)
 	count = struct.unpack('>i', header)[0]
 	return _get_block(s, count)
 
+# send all the message
 def send_msg(s, data, ip):
 	header = struct.pack('>i', len(data))
 	_send_block(s, header, ip)
@@ -182,13 +193,18 @@ def send_single_msg(ip, type, dataID=0, data=None):
 		s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 	# serialize the message to a byte stream
 	msg = Message(type,dataID,data)
-	bits = pickle.dumps(msg)
+	bits = pickle.dumps(msg) # format the msg
 	send_msg(s, bits, ip)
 	s.close()
 
 
 global openedSocket
 global openedSocketSize
+
+# because it a msg with a variable size
+# we count the msg and send the header that contains the size of the msg
+# and after it send blocks of messages.
+# when recieved in blocks all the msg (by the header) - we know the next block us for the next msg
 
 def send_header(size,ip):
 	global openedSocket
