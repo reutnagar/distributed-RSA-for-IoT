@@ -20,12 +20,12 @@ class State(object):
 	RSAPublic = None
 	RSAPrivate = None
 	
-	neighbors = []  # list of tuples: known neighbors on the network, and the common key's index with them
-	keys = []  # list of my sub pool of keys, with their indexes
-	masterIP = "" # will hold the IP of the Master on the network
+	neighbors = []  # list of tuples: known neighbors on the network, and the common key's index with them, Initialized to -1.
+	keys = []  # list of tuples: my sub pool of keys and their indexes
+	masterIP = ""  # will hold the IP of the Master on the network
 	
 	# only relevant to Master:
-	poolSize = 0 # the size of the keys pool to be generated
-	subKeysSize = 0 # the size of the sub key-pool to be sent to each node
-	pool_keys = [] # the key pool
-	toSendKeys = [] # list of IPs that the Master will send key to after generation of the key is done
+	poolSize = 0  # the size of the keys pool to be generated
+	subKeysSize = 0  # the size of the sub key-pool to be sent to each node
+	pool_keys = []  # the keys pool
+	toSendKeys = []  # list of IP's that the Master will send key to, after generation of the key is done

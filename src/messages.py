@@ -51,7 +51,7 @@ def async_listen_to_messages():
 def async_listen():
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s.bind(('',PORT))
-	print("Created socket...")
+	print("Created socket. Listening for messages...")
 	while(True):  # may stop the thread on some condition...
 		msg, ip = listen(s)  # block until message accepted
 		process_message(msg, ip)
@@ -62,12 +62,12 @@ def listen(socket):
 		if my_ip != address[0]:
 			break
 	msg = pickle.loads(bits)
-	print('Got message: %s. from : %s' % (msg.type, address[0]))
+	#print('Got message: %s. from : %s' % (msg.type, address[0]))
 	return msg, address[0]
 
 
 def process_message(message, ip):
-	#print("in process_message. msg: "+ str(message.type))
+	print("Got message from " + str(ip) + ". Type: " + str(message.type) + ", dataID: " + str(message.dataID))
 	if message.type == IS_THERE_MASTER:
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE):
 			send_single_msg(ip,I_AM_MASTER)
@@ -77,15 +77,11 @@ def process_message(message, ip):
 			state.status = MASTER_FOUND
 			state.masterIP = ip
 			state.neighbors.append((ip,-1))
-			print("in process_message I_AM_MASTER. Master is found!! master IP is : "+ str(ip))
 		elif state.status == INIT:
 			print("Got message: I_AM_MASTER in INIT stage. doing nothing...")
-		else:
-			print("ERROR! got message: "+ str(message.type)+ "when status is: "+ str(state.status))
 	elif message.type == CLIENT_PUBLIC_KEY:
 		if state.status == MASTER_INIT:
 			state.toSendKeys.append((ip,message.data)) # save the client ip and public key for later use
-			print(state.toSendKeys)
 		elif state.status == MASTER_DONE:
 			send_keys_to_client(ip, message.data) # encrypt the sub-pool with the client's public key
 	elif message.type == CLIENT_RING_KEYS:
@@ -95,17 +91,18 @@ def process_message(message, ip):
 			state.status = CLIENT_GETTING_KEYS
 	elif message.type == CLIENT_RING_END:
 		if state.status == CLIENT_GETTING_KEYS:
-			print('Finish to recieve the keys')
 			state.status = CLIENT_GOT_KEYS
-			print('keys: '+str(state.keys))
 	elif message.type == I_AM_ON_THE_NETWORK:
 		ips = [i[0] for i in state.neighbors]
 		if ip not in ips:
 			print("Add neighbor ip: "+str(ip))
 			state.neighbors.append((ip,-1))
-			print("the state.neighbors: "+str(state.neighbors))
+			#print("the state.neighbors: "+str(state.neighbors))
 		if(state.status == CLIENT_DONE or state.status == MASTER_DONE):
-			send_single_msg(ip, CLIENT_START_SESSION,0,[x[0] for x in state.keys])
+			my_indexes = [x[0] for x in state.keys]
+			print("Sending my keys indexes to: "+str(ip))
+			print("My indexes are: "+str(my_indexes))
+			send_single_msg(ip, CLIENT_START_SESSION,0,my_indexes)
 	elif message.type == CLIENT_START_SESSION:
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
 			common_key = -1 
@@ -121,15 +118,16 @@ def process_message(message, ip):
 				common_key = common_keys[0]
 			# Response with the common key index, or -1 if not found
 			send_single_msg(ip, CLIENT_COMMON_INDEX,common_key)
+			print("Common key with "+ str(ip) +"is: "+str(common_key))
 	elif message.type == CLIENT_COMMON_INDEX:
-		print('got CLIENT_COMMON_INDEX msg, the common_key is: '+str(message.dataID))
+		print("Common key with "+ str(ip) +"is: "+str(message.dataID))
 		for index, neighbor in enumerate(state.neighbors):
 			list_neighbor = list(neighbor)
-			print("list_neighbor: "+str(list_neighbor)) 
+			#print("list_neighbor: "+str(list_neighbor)) 
 			if list_neighbor[0] == ip:
 				list_neighbor[1] = message.dataID
 			state.neighbors[index] = tuple(list_neighbor)
-			print('neighbors: '+str(state.neighbors))
+			#print('neighbors: '+str(state.neighbors))
 	elif message.type == MESSAGE_ENC_DATA:
 		for neighbor, index in state.neighbors: # look for the sender ip in the neighbors list
 			if neighbor == ip: # neighbor is found
@@ -137,7 +135,7 @@ def process_message(message, ip):
 				msg = crypt.decrypt_message(key, message.data, message.dataID)
 				print("Decrypted message from: "+ str(ip) + ". Message is: " + str(msg))
 	else:
-		print("ERROR! got message: "+ str(message.type)+ " when status is: "+ str(state.status))
+		print("Got message: "+ str(message.type)+ " when status is: "+ str(state.status))
 
 
 #############################

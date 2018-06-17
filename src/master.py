@@ -6,55 +6,50 @@ import random, math, string, time
 import messages, crypt
 
 KEY_SIZE = 16
+
 # memory size
 M = 512
 
-# The number of network&#39;s nodes
+# The number of the nodes in network.
 n = 10000
+
+def calculate_sub_keys_size():
+	sub_pool = M/(2*KEY_SIZE)
+	return sub_pool
+
+# size of sub keys 
+k = calculate_sub_keys_size()
 
 def nodesInNetwork():
 	return n
 
-def calculate_sub_keys_size():
-	print("Master: Calculating  the subset size = " + str(M/KEY_SIZE))
-	return 15 #30 #15 #M/8
-	
-# size of sub keys 
-k = calculate_sub_keys_size()
-
-# n', neighborhood size
+# n', The neighborhood size
 nn = 25
 
-# # the probability where it is certainly true that two nodes have a connectivity
-# Pc = 0.999
+# def a():
+	# Pc = math.e**(math.e**-c)
+	# return Pc
 
-# def calculateC(Pc):
-	# a = math.log(Pc,math.e)
-	# b = -math.log(a,math.e)
-	# return b
-
-# c = calculateC(Pc)
-
+# a real constant, to calculate p
 c = 11.5
-
-def a():
-	Pc = math.e**(math.e**-c)
-	return Pc
-	
+# calculate p, according to the variables. p is 
 p = math.log(n, math.e)/n + c/n
 
+# d is 
 d = p * (n - 1)
 
-pp = d / (nn - 1) # p'
+# p'
+pp = d / (nn - 1)
 
-gP = -k**2/math.log(1-pp) #x0
+# x0, the first x, in order to begins the iterations of calculating p'
+gP = -k**2/math.log(1-pp)
 
-# function to calculate p'
+# function to calculate p'.
 def func(P):
-    return log(1-pp)-(2*P-2*k+1)*log(1-k/P)+(P-2*k+1/2)*log(1-2*k/P) 
+	return log(1-pp)-(2*P-2*k+1)*log(1-k/P)+(P-2*k+1/2)*log(1-2*k/P) 
 	
+# function to calculate the size of the pool the masrer have to p
 def calculate_pool_size():
-	print("Master: Calculating  the pool size...")
 	P = int(fsolve(func, gP)[0])
 	return P
 	
@@ -77,27 +72,24 @@ def get_k():
 	return k
 	
 def generate_key_pool():
-	print("Master: Generating the key pool")
 	key_pool = []  # list of keys
 	for i in xrange(P):
 		# generate a random sequence of bits to be the key
 		key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(KEY_SIZE))
 		key_pool.append(key)  # add the key to the pool. the key index is its index on this list
-	print("Generated pool of size: "+ str(len(key_pool)))
-	print(key_pool)
+	print("Generated the key pool.")
 	return key_pool
 	
-def generate_sub_keys(key_pool, k):
-    sub_keys = {}
-    for i in xrange(k):
-        id = -1
-        while id < 0 or id in sub_keys:
-            id = int(math.floor(random.random() * len(key_pool)))
-        sub_keys[id] = key_pool[id]
-    return sub_keys
+# def generate_sub_keys(key_pool, k):
+    # sub_keys = {}
+    # for i in xrange(k):
+        # id = -1
+        # while id < 0 or id in sub_keys:
+            # id = int(math.floor(random.random() * len(key_pool)))
+        # sub_keys[id] = key_pool[id]
+    # return sub_keys
 	
 def send_keys():
-	print('in send_keys')
 	current_clients = state.toSendKeys
 	state.toSendKeys = [] # reset the list of client that are waiting to receive the keys. this list may be changed from the async thread
 	for index, client in enumerate(current_clients): # send the key to nodes that already sent their public key
@@ -105,6 +97,7 @@ def send_keys():
 		send_keys_to_client(ip, None)
 
 def send_keys_to_client(ip, clientPublicKey):
+	print("Sending keys to: " + str(ip) + "...")
 	# Send sub-pool of size determined in calculate_sub_keys_size()
 	for i in range(state.subKeysSize): 
 		# Get random key from the pool
@@ -116,5 +109,6 @@ def send_keys_to_client(ip, clientPublicKey):
 		messages.send_single_msg(ip, 'CLIENT_RING_KEYS', key_index, keyData)
 	# Indicate the client that no more keys will be sent
 	messages.send_single_msg(ip, 'CLIENT_RING_END')
+	print("Finish to send keys to client.")
 	
 	
