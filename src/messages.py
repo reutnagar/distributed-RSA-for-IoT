@@ -83,7 +83,10 @@ def process_message(message, ip):
 		if state.status == MASTER_INIT:
 			state.toSendKeys.append((ip,message.data)) # save the client ip and public key for later use
 		elif state.status == MASTER_DONE:
-			send_keys_to_client(ip, message.data) # encrypt the sub-pool with the client's public key
+			# encrypt the sub-pool with the client's public key
+			c = threading.Thread(target=send_keys_to_client, args=[ip, message.data])
+			c.daemon = True
+			c.start()
 	elif message.type == CLIENT_RING_KEYS:
 		if state.status == CLIENT_INIT or state.status == CLIENT_GETTING_KEYS:
 			print("Receive key, index: " + str(message.dataID))
@@ -101,7 +104,7 @@ def process_message(message, ip):
 		if(state.status == CLIENT_DONE or state.status == MASTER_DONE):
 			my_indexes = [x[0] for x in state.keys]
 			print("Sending my keys indexes to: "+str(ip))
-			print("My indexes are: "+str(my_indexes))
+			#print("My indexes are: "+str(my_indexes))
 			send_single_msg(ip, CLIENT_START_SESSION,0,my_indexes)
 	elif message.type == CLIENT_START_SESSION:
 		if state.status == CLIENT_DONE or state.status == MASTER_DONE:
@@ -118,9 +121,9 @@ def process_message(message, ip):
 				common_key = common_keys[0]
 			# Response with the common key index, or -1 if not found
 			send_single_msg(ip, CLIENT_COMMON_INDEX,common_key)
-			print("Common key with "+ str(ip) +"is: "+str(common_key))
+			print("Common key with "+ str(ip) +" is: "+str(common_key))
 	elif message.type == CLIENT_COMMON_INDEX:
-		print("Common key with "+ str(ip) +"is: "+str(message.dataID))
+		print("Common key with "+ str(ip) +" is: "+str(message.dataID))
 		for index, neighbor in enumerate(state.neighbors):
 			list_neighbor = list(neighbor)
 			#print("list_neighbor: "+str(list_neighbor)) 

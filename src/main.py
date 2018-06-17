@@ -51,23 +51,26 @@ else: # perform client logic
 	print('Recieved the keys from the master. Now decrypting... ')
 	# decrypt all the keys
 	state.keys = [(index, crypt.decrypt_asym(state.RSAPrivate, key)) for (index, key) in state.keys]
+	print("Got "+ str(len(state.keys)) +" keys, My indexes are: "+ str([x[0] for x in state.keys]))
 	# publish my IP in the network
 	client.publishMe()
 	state.status = CLIENT_DONE
+	# Send messages using the common index- if there is...
+	stop = False
+	while(stop != True):
+		for neighbor, index in state.neighbors:
+			if index != -1 and neighbor != state.masterIP:
+				time.sleep(20) # not to overload the network... 
+				# Find the common index of me and the neighbor
+				key = ''.join([key for (i, key) in state.keys if i == index])
+				msg = "This is a very secret message from: "+ state.myIP
+				print("The message is: " + str(msg))
+				# Encrypt the message with AES (key is 256 bit)
+				iv, cipher = crypt.encrypt_message(key, msg)
+				print("The cipher is: "+ str(cipher))
+				messages.send_single_msg(neighbor, messages.MESSAGE_ENC_DATA, iv, cipher)
+				stop = True
 
-# Send messages using the common index- if there is...
-stop = False
-while(!stop):
-	for neighbor, index in state.neighbors:
-		if index != -1:
-			time.sleep(20) # not to overload the network... 
-			# Find the common index of me and the neighbor
-			key = ''.join([key for (i, key) in state.keys if i == index])
-			msg = "This is a very secret message from: "+ state.myIP
-			# Encrypt the message with AES (key is 256 bit)
-			iv, cipher = crypt.encrypt_message(key, msg)
-			messages.send_single_msg(neighbor, messages.MESSAGE_ENC_DATA, iv, cipher)
-			stop = True
 
 # Secured network has been established, can continue other work...
 while(True):
