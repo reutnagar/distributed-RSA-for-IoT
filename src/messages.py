@@ -15,7 +15,7 @@ CLIENT_COMMON_INDEX  = "CLIENT_COMMON_INDEX"
 MESSAGE_ENC_DATA = "MESSAGE_ENC_DATA"
 PORT = 5002
 
-# the messages have three fildes: 
+# the messages have three fields: 
 # 1. type = the header of the message
 # 2. dataID = an aditional data, like the index of key in CLIENT_RING_KEYS message , when no nedded is 0
 # 3. data = the data itself. when the message don't have data, it'w None 
