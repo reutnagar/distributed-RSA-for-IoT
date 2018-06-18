@@ -69,7 +69,6 @@ def listen(socket):
 		if my_ip != address[0]:
 			break
 	msg = pickle.loads(bits) # Returns the message to a format of message
-	#print('Got message: %s. from : %s' % (msg.type, address[0]))
 	return msg, address[0]
 
 # function to process the message, in order to know what to do with
