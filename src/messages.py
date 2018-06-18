@@ -62,13 +62,13 @@ def async_listen():
 		msg, ip = listen(s)  # block until message accepted
 		process_message(msg, ip)
 
-# listen for message, if it's me - break
+# listen for message, if it is not sent by me - process the message
 def listen(socket):
 	while True:
 		bits , address = get_msg(socket)
 		if my_ip != address[0]:
 			break
-	msg = pickle.loads(bits) # Returns the message to a format of message
+	msg = pickle.loads(bits) # Returns the message to a format of Message class
 	return msg, address[0]
 
 # function to process the message, in order to know what to do with
