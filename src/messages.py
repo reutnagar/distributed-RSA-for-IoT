@@ -145,7 +145,8 @@ def process_message(message, ip):
 	elif message.type == MESSAGE_ENC_DATA: # recieving data encypted with the common key
 		for neighbor, index in state.neighbors: # look for the sender ip in the neighbors list
 			if neighbor == ip: # neighbor is found
-				key = ''.join([key for (i, key) in state.keys if i == index]) # supposed to find only one key with the same index!
+				# supposed to find only one key with the same index!
+				key = ''.join([key for (i, key) in state.keys if i == index]) 
 				msg = crypt.decrypt_message(key, message.data, message.dataID)
 				print("Decrypted message from: "+ str(ip) + ". Message is: " + str(msg))
 	else: #error
