@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python src/tests.py > /dev/null &
+python -m src.test.tests > /dev/null &

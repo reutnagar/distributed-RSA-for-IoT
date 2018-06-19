@@ -1,4 +1,4 @@
-import main , messeges
+from .. import messages
 
 #list_of_indexes = state.keys()
 list_of_indexes = [1,4,7,9,33,5]

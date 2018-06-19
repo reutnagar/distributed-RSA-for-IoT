@@ -1,5 +1,8 @@
 # This module tests "crypt.py" functionality
-import crypt
+import os
+import sys
+
+from .. import crypt
 import random, string
 
 #RSA testing

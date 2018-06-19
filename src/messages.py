@@ -1,7 +1,6 @@
 import struct, threading, pickle, socket, time, os
 from state import *
 from global_data import state
-from master import send_keys_to_client
 import crypt
 
 IS_THERE_MASTER = "IS_THERE_MASTER"
@@ -62,6 +61,7 @@ def async_listen():
 		msg, ip = listen(s)  # block until message accepted
 		process_message(msg, ip)
 
+		
 # listen for message, if it is not sent by me - process the message
 def listen(socket):
 	while True:
@@ -203,6 +203,23 @@ def send_single_msg(ip, type, dataID=0, data=None):
 	bits = pickle.dumps(msg) # format the msg
 	send_msg(s, bits, ip)
 	s.close()
+
+# function that sending keys to clients that waiting for them, encrypted with their public key
+# this will happen asynchronously
+def send_keys_to_client(ip, clientPublicKey):
+	print("Sending keys to: " + str(ip) + "...")
+	# Send sub-pool of size determined in calculate_sub_keys_size()
+	for i in range(state.subKeysSize): 
+		# Get random key from the pool
+		key_index = int(math.floor(random.random() * len(state.pool_keys)))
+		keyData = state.pool_keys[key_index]
+		# Encrypt the key with the client's public RSA key
+		keyData = crypt.encrypt_asym(clientPublicKey, keyData)
+		# Send to client
+		send_single_msg(ip, 'CLIENT_RING_KEYS', key_index, keyData)
+	# Indicate the client that no more keys will be sent
+	send_single_msg(ip, 'CLIENT_RING_END')
+	print("Finish to send keys to client.")
 
 
 global openedSocket

@@ -1,4 +1,5 @@
-import master, math , random
+from .. import master
+import math , random
 
 k = master.get_k()
 print 'from test: k = ' + str(k)
@@ -11,7 +12,7 @@ key_pool = master.generate_key_pool()
 #print 'from test: the key pool is:' + str(key_pool)
 
 #print master.calculateC(0.7)
-print ('pc: ',master.a())
+#print ('pc: ',master.a())
 print ('pp: ',master.get_pp())
 
 num = master.nodesInNetwork() # num of neigbors

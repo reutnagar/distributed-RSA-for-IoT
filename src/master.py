@@ -90,22 +90,5 @@ def send_keys():
 	state.toSendKeys = [] # reset the list of client that are waiting to receive the keys. this list may be changed from the async thread
 	for index, client in enumerate(current_clients): # send the key to nodes that already sent their public key
 		ip = client[index]
-		send_keys_to_client(ip, None)
+		messages.send_keys_to_client(ip, None)
 
-# function that sendings keys to clients that waiting for them, encypted with thier public key
-def send_keys_to_client(ip, clientPublicKey):
-	print("Sending keys to: " + str(ip) + "...")
-	# Send sub-pool of size determined in calculate_sub_keys_size()
-	for i in range(state.subKeysSize): 
-		# Get random key from the pool
-		key_index = int(math.floor(random.random() * len(state.pool_keys)))
-		keyData = state.pool_keys[key_index]
-		# Encrypt the key with the client's public RSA key
-		keyData = crypt.encrypt_asym(clientPublicKey, keyData)
-		# Send to client
-		messages.send_single_msg(ip, 'CLIENT_RING_KEYS', key_index, keyData)
-	# Indicate the client that no more keys will be sent
-	messages.send_single_msg(ip, 'CLIENT_RING_END')
-	print("Finish to send keys to client.")
-	
-	
