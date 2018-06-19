@@ -1,4 +1,4 @@
-import struct, threading, pickle, socket, time, os
+import struct, threading, pickle, socket, time, os, math, random
 from state import *
 from global_data import state
 import crypt
@@ -85,7 +85,7 @@ def process_message(message, ip):
 	if message.type == IS_THERE_MASTER:
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE): # if I'm master
 			send_single_msg(ip,I_AM_MASTER) 
-			print("Sent message I_AM_MASTER to IP: "+ str(ip))
+			#print("Sent message I_AM_MASTER to IP: "+ str(ip))
 	elif message.type == I_AM_MASTER: # if get I_AM_MASTER msg, set the sender IP to be a master
 		if state.status == NODE_INIT:
 			state.status = MASTER_FOUND
@@ -216,15 +216,14 @@ def send_single_msg(ip, type, dataID=0, data=None):
 # this will happen asynchronously
 def send_keys_to_client(ip, clientPublicKey):
 	print("Sending keys to: " + str(ip) + "...")
-	# Send sub-pool of size determined in calculate_sub_keys_size()
-	for i in range(state.subKeysSize): 
-		# Get random key from the pool
-		key_index = int(math.floor(random.random() * len(state.pool_keys)))
-		keyData = state.pool_keys[key_index]
-		# Encrypt the key with the client's public RSA key
-		keyData = crypt.encrypt_asym(clientPublicKey, keyData)
-		# Send to client
-		send_single_msg(ip, 'CLIENT_RING_KEYS', key_index, keyData)
+	# Get random key-ring (sub-pool) from the pool
+	indexes = [int(math.floor(random.random()* len(state.pool_keys))) for i in range(state.subKeysSize)]
+	# Encrypt the key-ring with the client's public RSA key
+	print("Encrypting the key ring...")
+	keys = [(i, crypt.encrypt_asym(clientPublicKey, state.pool_keys[i])) for i in indexes]
+	# Send to client
+	for index, key in keys:
+		send_single_msg(ip, 'CLIENT_RING_KEYS', index, key)
 	# Indicate the client that no more keys will be sent
 	send_single_msg(ip, 'CLIENT_RING_END')
 	print("Finish to send keys to client.")

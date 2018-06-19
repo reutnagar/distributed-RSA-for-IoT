@@ -10,7 +10,7 @@ def find_master():
 	while(state.status != MASTER_FOUND):
 		print("Trying for the #" + str(3-counter) + " time...")
 		messages.broadcast(messages.IS_THERE_MASTER) # ask if there is master on the network
-		time.sleep(10) # wait for master response (it takes a long time for the IoT to respond... ~10 seconds!)
+		time.sleep(15) # wait for master response (it takes a long time for the IoT to respond... ~10 seconds!)
 		counter -= 1
 		if(counter == 0 and state.status != MASTER_FOUND): # after 2 tries to find the master, set myself as Master
 			messages.broadcast(messages.I_AM_MASTER)
