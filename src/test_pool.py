@@ -46,7 +46,3 @@ print str(count*100.0/a)+'%'
 			# count+=1
 # print str(count) +'in'+ str(a)
 # print str(count*100.0/a)+'%'
-
-import test_pass_index
-import test_recieve_index
-import test_crypt
