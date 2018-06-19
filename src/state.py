@@ -31,3 +31,5 @@ class State(object):
 	subKeysSize = 0  # the size of the sub key-pool to be sent to each node
 	pool_keys = []  # the keys pool
 	toSendKeys = []  # list of IP's that the Master will send key to, after generation of the key is done
+	
+	exitFlag = 0 # Flag for the async thread to cleanly exit

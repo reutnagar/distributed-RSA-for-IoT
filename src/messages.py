@@ -55,11 +55,19 @@ def async_listen_to_messages():
 
 def async_listen():
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.settimeout(5) # will raise error in case timeout happened
 	s.bind(('',PORT))
-	print("Created socket. Listening for messages...")
-	while(True):  # may stop the thread on some condition...
-		msg, ip = listen(s)  # block until message accepted
-		process_message(msg, ip)
+	print("Created socket. Listening for messages...")	
+	# stop the thread only if an exit signal was raised in main
+	while(state.exitFlag == 0): 
+		try:
+			msg, ip = listen(s)  # block until message accepted
+			process_message(msg, ip)
+		except socket.timeout:
+			pass
+	# Perform clean exit
+	s.close()
+	state.exitFlag = 0 # signal main that a clean exit is done
 
 		
 # listen for message, if it is not sent by me - process the message
