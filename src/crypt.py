@@ -12,11 +12,8 @@ def generate_asym_key(bits=2048):
 	return public_key, private_key
 	
 def encrypt_asym(pub_key, message):
-	print("Phase #1")
 	key = RSA.import_key(pub_key)
-	print("Phase #2")
 	cipher = PKCS1_v1_5.new(key)
-	print("Phase #3")
 	ciphertext = cipher.encrypt(message)
 	return ciphertext
 	

@@ -74,7 +74,7 @@ try:
 
 	# Secured network has been established, can continue other work...
 	while(True):
-		pass
+		time.sleep(10)
 except (KeyboardInterrupt, SystemExit):
 	state.exitFlag = 1 # signal the async thread to exit
 	while state.exitFlag == 1: # wait till the other thread cleanly exits
