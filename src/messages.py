@@ -85,7 +85,6 @@ def process_message(message, ip):
 	if message.type == IS_THERE_MASTER:
 		if (state.status == MASTER_INIT or state.status == MASTER_DONE): # if I'm master
 			send_single_msg(ip,I_AM_MASTER) 
-			#print("Sent message I_AM_MASTER to IP: "+ str(ip))
 	elif message.type == I_AM_MASTER: # if get I_AM_MASTER msg, set the sender IP to be a master
 		if state.status == NODE_INIT:
 			state.status = MASTER_FOUND
